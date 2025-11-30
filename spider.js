@@ -19,7 +19,7 @@ class Spider {
         // Rotación 2D del cuerpo
         this.rotation = Math.PI / 2; // Empieza mirando hacia abajo
         this.targetRotation = Math.PI / 2;
-        this.rotationVelocity = 0; // Velocidad angular actual
+        this.rotationVelocity = 0; // Velocidad angular
     }
 
     initializeLegs() {
@@ -110,9 +110,90 @@ class Spider {
         });
     }
 
-    const rotatedAngle = leg.baseAngle + this.rotation;
-    const attachX = this.x + Math.cos(rotatedAngle) * this.bodyRadius;
-    const attachY = this.y + Math.sin(rotatedAngle) * this.bodyRadius;
+    updateLegDirectional(leg) {
+        const groupA = [0, 2, 5, 7];
+        const isGroupA = groupA.includes(leg.index);
+        const phaseOffset = isGroupA ? 0 : Math.PI;
+        const individualOffset = leg.index * 0.15;
+        const phase = (this.walkCycle + phaseOffset + individualOffset) % (Math.PI * 2);
+
+        const restDistance = 55;
+        const strideLength = 18;
+
+        // Detección 2D con producto punto (rotación del cuerpo incluida)
+        const rotatedAngle = leg.baseAngle + this.rotation;
+        const legDirX = Math.cos(rotatedAngle);
+        const legDirY = Math.sin(rotatedAngle);
+
+        const speed = Math.hypot(this.velocity || 0, this.velocityY || 0);
+        const velX = speed > 0 ? (this.velocity || 0) / speed : 0;
+        const velY = speed > 0 ? (this.velocityY || 0) / speed : 1;
+
+        const dotProduct = legDirX * velX + legDirY * velY;
+        const isFrontLeg = dotProduct > 0;
+
+        const isSwingPhase = phase < Math.PI;
+
+        if (isFrontLeg) {
+            // PATAS DELANTERAS: Reach-Pull
+            if (isSwingPhase) {
+                const reachProgress = phase / Math.PI;
+
+                const reachExtension = strideLength * 0.7;
+                const forwardAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
+                const reachDist = restDistance + (reachExtension * reachProgress);
+
+                const targetX = this.x + Math.cos(forwardAngle) * reachDist;
+                const targetY = this.y + Math.sin(forwardAngle) * reachDist;
+
+                const liftHeight = Math.sin(reachProgress * Math.PI) * 12;
+
+                this.solveIK(leg, targetX, targetY - liftHeight);
+
+            } else {
+                const pullProgress = (phase - Math.PI) / Math.PI;
+
+                const pullAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
+                const pullDist = restDistance + strideLength * 0.7;
+                const contractDist = pullDist - (strideLength * 0.7 * pullProgress);
+
+                const stanceX = this.x + Math.cos(pullAngle) * contractDist;
+                const stanceY = this.y + Math.sin(pullAngle) * contractDist;
+
+                this.solveIK(leg, stanceX, stanceY);
+            }
+
+        } else {
+            // PATAS TRASERAS: Push
+            if (!isSwingPhase) {
+                const pushProgress = (phase - Math.PI) / Math.PI;
+
+                const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
+                const stretchDist = restDistance + (strideLength * 0.4 * pushProgress);
+
+                const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
+                const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
+
+                this.solveIK(leg, pushX, pushY);
+
+            } else {
+                const recoveryProgress = phase / Math.PI;
+
+                const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
+                const targetX = this.x + Math.cos(neutralAngle) * restDistance;
+                const targetY = this.y + Math.sin(neutralAngle) * restDistance;
+
+                const liftHeight = Math.sin(recoveryProgress * Math.PI) * 8;
+
+                this.solveIK(leg, targetX, targetY - liftHeight);
+            }
+        }
+    }
+
+    drawLeg(ctx, leg) {
+        const rotatedAngle = leg.baseAngle + this.rotation;
+        const attachX = this.x + Math.cos(rotatedAngle) * this.bodyRadius;
+        const attachY = this.y + Math.sin(rotatedAngle) * this.bodyRadius;
 
         ctx.strokeStyle = '#2a2a2a';
         ctx.lineWidth = 1.5;
@@ -122,68 +203,71 @@ class Spider {
         ctx.beginPath();
         ctx.moveTo(attachX, attachY);
 
-    const cp1X = attachX + (leg.joint1X - attachX) * 0.5;
-    const cp1Y = attachY + (leg.joint1Y - attachY) * 0.5 - 3;
+        const cp1X = attachX + (leg.joint1X - attachX) * 0.5;
+        const cp1Y = attachY + (leg.joint1Y - attachY) * 0.5 - 3;
         ctx.quadraticCurveTo(cp1X, cp1Y, leg.joint1X, leg.joint1Y);
 
-    const cp2X = leg.joint1X + (leg.joint2X - leg.joint1X) * 0.5;
-    const cp2Y = leg.joint1Y + (leg.joint2Y - leg.joint1Y) * 0.5 + 2;
+        const cp2X = leg.joint1X + (leg.joint2X - leg.joint1X) * 0.5;
+        const cp2Y = leg.joint1Y + (leg.joint2Y - leg.joint1Y) * 0.5 + 2;
         ctx.quadraticCurveTo(cp2X, cp2Y, leg.joint2X, leg.joint2Y);
 
         ctx.quadraticCurveTo(
-        leg.joint2X + (leg.tipX - leg.joint2X) * 0.6,
+            leg.joint2X + (leg.tipX - leg.joint2X) * 0.6,
             leg.joint2Y + (leg.tipY - leg.joint2Y) * 0.6,
             leg.tipX, leg.tipY
         );
 
-ctx.stroke();
+        ctx.stroke();
     }
 
-drawBody(ctx) {
-    ctx.fillStyle = '#1a1a1a';
-    ctx.strokeStyle = '#2a2a2a';
-    ctx.lineWidth = 1;
+    drawBody(ctx) {
+        ctx.fillStyle = '#1a1a1a';
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1;
 
-    ctx.beginPath();
+        ctx.beginPath();
 
-    const r = this.bodyRadius;
-    const smoothness = 0.55;
-    const offset = r * smoothness;
+        const r = this.bodyRadius;
+        const smoothness = 0.55;
+        const offset = r * smoothness;
 
-    ctx.moveTo(this.x, this.y - r);
+        ctx.moveTo(this.x, this.y - r);
 
-    ctx.bezierCurveTo(
-        this.x + offset, this.y - r,
-        this.x + r, this.y - offset,
-        this.x + r, this.y
-    );
-    ctx.bezierCurveTo(
-        this.x + r, this.y + offset,
-        this.x + offset, this.y + r,
-        this.x, this.y + r
-    );
-    ctx.bezierCurveTo(
-        this.x - offset, this.y + r,
-        this.x - r, this.y + offset,
-        this.x - r, this.y
-    );
-    ctx.bezierCurveTo(
-        this.x - r, this.y - offset,
-        this.x - offset, this.y - r,
-        this.x, this.y - r
-    );
+        ctx.bezierCurveTo(
+            this.x + offset, this.y - r,
+            this.x + r, this.y - offset,
+            this.x + r, this.y
+        );
+        ctx.bezierCurveTo(
+            this.x + r, this.y + offset,
+            this.x + offset, this.y + r,
+            this.x, this.y + r
+        );
+        ctx.bezierCurveTo(
+            this.x - offset, this.y + r,
+            this.x - r, this.y + offset,
+            this.x - r, this.y
+        );
+        ctx.bezierCurveTo(
+            this.x - r, this.y - offset,
+            this.x - offset, this.y - r,
+            this.x, this.y - r
+        );
 
-    ctx.fill();
-    ctx.stroke();
-}
+        ctx.fill();
+        ctx.stroke();
+    }
 
-update() {
-}
+    update() {
+        // Actualizar rotación objetivo basada en velocidad
+        const speed = Math.hypot(this.velocity, this.velocityY);
+        if (speed > 0.1) {
+        }
 
-this.drawBody(ctx);
+        this.drawBody(ctx);
 
-for (let i = 4; i < 8; i++) {
-    this.drawLeg(ctx, this.legs[i]);
-}
+        for (let i = 4; i < 8; i++) {
+            this.drawLeg(ctx, this.legs[i]);
+        }
     }
 }
