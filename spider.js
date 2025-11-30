@@ -74,7 +74,7 @@ class Spider {
             bendDirection *= -1;
         }
 
-        leg.angle1 = angleToTarget - bendAngle1 * bendDirection * 0.7;
+        leg.angle1 = angleToTarget - bendAngle1 * bendDirection * 0.9;
 
         leg.joint1X = attachX + Math.cos(leg.angle1) * l1;
         leg.joint1Y = attachY + Math.sin(leg.angle1) * l1;
@@ -87,13 +87,13 @@ class Spider {
         const bendAngle2 = Math.acos(Math.max(-1, Math.min(1, cosAngle2)));
 
         const angleToTarget2 = Math.atan2(dy2, dx2);
-        leg.angle2 = angleToTarget2 - bendAngle2 * bendDirection * 0.5;
+        leg.angle2 = angleToTarget2 - bendAngle2 * bendDirection * 0.7;
 
         leg.joint2X = leg.joint1X + Math.cos(leg.angle2) * l2;
         leg.joint2Y = leg.joint1Y + Math.sin(leg.angle2) * l2;
 
         leg.angle3 = Math.atan2(targetY - leg.joint2Y, targetX - leg.joint2X);
-        leg.angle3 += bendDirection * 0.1;
+        leg.angle3 += bendDirection * 0.15;
 
         leg.tipX = leg.joint2X + Math.cos(leg.angle3) * l3;
         leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * l3;
