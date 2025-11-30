@@ -64,7 +64,7 @@ class Spider {
         let finalDist = Math.max(minReach, Math.min(distance, maxReach));
         const angleToTarget = Math.atan2(dy, dx);
 
-        const cosAngle1 = (l1 * l1 + finalDist * final Dist - l2 * l2) / (2 * l1 * finalDist);
+        const cosAngle1 = (l1 * l1 + finalDist * finalDist - l2 * l2) / (2 * l1 * finalDist);
         const bendAngle1 = Math.acos(Math.max(-1, Math.min(1, cosAngle1)));
 
         let bendDirection = leg.baseAngle > 0 ? -1 : 1;
