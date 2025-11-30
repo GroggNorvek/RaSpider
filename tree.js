@@ -16,11 +16,12 @@ class Tree {
         this.branchY = 200;
         this.branchLength = 950;
         this.branchAngle = Math.PI + 0.1;
+        this.branchStartX = this.x + 40; // Empieza 40px dentro del tronco
 
         this.branches = [{
-            startX: this.x,
+            startX: this.branchStartX,
             startY: this.branchY,
-            endX: this.x + Math.cos(this.branchAngle) * this.branchLength,
+            endX: this.branchStartX + Math.cos(this.branchAngle) * this.branchLength,
             endY: this.branchY + Math.sin(this.branchAngle) * this.branchLength,
             angle: this.branchAngle,
             length: this.branchLength,
@@ -33,7 +34,7 @@ class Tree {
 
         const branchBaseWidth = 70;
         const branchTipWidth = 20;
-        const branchEndX = this.x + Math.cos(this.branchAngle) * this.branchLength;
+        const branchEndX = this.branchStartX + Math.cos(this.branchAngle) * this.branchLength;
         const branchEndY = this.branchY + Math.sin(this.branchAngle) * this.branchLength;
         const perpX = -Math.sin(this.branchAngle);
         const perpY = Math.cos(this.branchAngle);
@@ -75,13 +76,11 @@ class Tree {
         const steps = 50;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
-            const baseX = this.x + (branchEndX - this.x) * t;
+            const baseX = this.branchStartX + (branchEndX - this.branchStartX) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
 
-            // Adelgazamiento simple de base a punta
             const width = branchBaseWidth - (branchBaseWidth - branchTipWidth) * t;
 
-            // Ondulaciones orgánicas
             const wave1 = Math.sin(t * Math.PI * 2.2) * 12 * (1 - t * 0.6);
             const wave2 = Math.sin(t * Math.PI * 1.5 + 0.8) * 8 * (1 - t * 0.4);
             const totalWave = wave1 + wave2;
@@ -104,7 +103,7 @@ class Tree {
         // 7. Lado superior (volviendo)
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
-            const baseX = this.x + (branchEndX - this.x) * t;
+            const baseX = this.branchStartX + (branchEndX - this.branchStartX) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
 
             const width = branchBaseWidth - (branchBaseWidth - branchTipWidth) * t;
