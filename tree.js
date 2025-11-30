@@ -75,20 +75,22 @@ class Tree {
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 5. RAMA - lado inferior con adelgazamiento natural
+        // 5. RAMA - lado inferior con curvas orgánicas complejas
         const steps = 50;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
-            const x = this.x + (branchEndX - this.x) * t;
-            const y = this.branchY + (branchEndY - this.branchY) * t;
+            const baseX = this.x + (branchEndX - this.x) * t;
+            const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            // Ligera ondulación en la rama
-            const wave = Math.sin(t * Math.PI * 3) * (2 * (1 - t));
+            // Ondulación orgánica dual que disminuye hacia la punta
+            const wave1 = Math.sin(t * Math.PI * 2.5) * 3 * (1 - t * 0.8);
+            const wave2 = Math.sin(t * Math.PI * 1.3 + 0.5) * 2 * (1 - t);
+            const totalWave = wave1 + wave2;
 
             ctx.lineTo(
-                x - perpX * width / 2 + wave * perpY,
-                y - perpY * width / 2 - wave * perpX
+                baseX - perpX * width / 2 + totalWave * perpY * 0.5,
+                baseY - perpY * width / 2 - totalWave * perpX * 0.5
             );
         }
 
@@ -101,18 +103,21 @@ class Tree {
             false
         );
 
-        // 7. RAMA - lado superior
+        // 7. RAMA - lado superior con curvas complementarias
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
-            const x = this.x + (branchEndX - this.x) * t;
-            const y = this.branchY + (branchEndY - this.branchY) * t;
+            const baseX = this.x + (branchEndX - this.x) * t;
+            const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            const wave = Math.sin(t * Math.PI * 3 + Math.PI) * (2 * (1 - t));
+            // Ondulación inversa para lado superior
+            const wave1 = Math.sin(t * Math.PI * 2.5 + Math.PI) * 3 * (1 - t * 0.8);
+            const wave2 = Math.sin(t * Math.PI * 1.3 - 0.5) * 2 * (1 - t);
+            const totalWave = wave1 + wave2;
 
             ctx.lineTo(
-                x + perpX * width / 2 + wave * perpY,
-                y + perpY * width / 2 - wave * perpX
+                baseX + perpX * width / 2 + totalWave * perpY * 0.5,
+                baseY + perpY * width / 2 - totalWave * perpX * 0.5
             );
         }
 
