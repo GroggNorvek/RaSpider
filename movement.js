@@ -189,15 +189,20 @@ class SpiderController {
             const distToEnd = Math.hypot(this.spider.x - branchEndX, this.spider.y - branchEndY);
             const distToStart = Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY);
 
-            // Si está muy cerca del final o inicio, INVERTIR dirección
-            if (distToEnd < 20) {
-                // Llegó al final - invertir dirección completamente
-                this.angle = angle + Math.PI; // 180 grados
+            // Si está muy cerca del inicio, redirigir hacia el centro del tronco para salir de la rama
+            if (distToStart < 30) {
+                // Calcular centro del tronco
+                const trunkCenterX = this.tree.x + this.tree.trunkWidth / 2;
+                const trunkCenterY = this.tree.y + this.tree.trunkHeight / 2;
+
+                // Dirigirse hacia el centro del tronco
+                const angleToCenter = Math.atan2(trunkCenterY - this.spider.y, trunkCenterX - this.spider.x);
+                this.angle = angleToCenter;
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
-            } else if (distToStart < 20) {
-                // Llegó al inicio - invertir dirección
-                this.angle = angle;
+            } else if (distToEnd < 20) {
+                // Llegó al final - invertir dirección completamente
+                this.angle = angle + Math.PI; // 180 grados
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
             }

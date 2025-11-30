@@ -1,0 +1,10 @@
+    updateLegDirectional(leg) {
+        const groupA = [0, 2, 4, 7];
+        const isGroupA = groupA.includes(leg.index);
+        const phaseOffset = isGroupA ? 0 : Math.PI;
+        
+        // Offset único por pata - nunca 2 patas al mismo tiempo
+        const offsets = [0, 0.31, 0.17, 0.42, 0.08, 0.53, 0.25, 0.36];
+        const individualOffset = offsets[leg.index];
+        
+        const phase = (this.walkCycle + phaseOffset + individualOffset) % (Math.PI * 2);
