@@ -182,30 +182,29 @@ class SpiderController {
             const branch = surface.branch;
             const angle = branch.angle;
 
-            this.spider.x += Math.cos(angle) * this.speed;
-            this.spider.y += Math.sin(angle) * this.speed;
-
+            // Calcular posiciones de extremos
             const branchEndX = branch.startX + Math.cos(angle) * branch.length;
             const branchEndY = branch.startY + Math.sin(angle) * branch.length;
 
             const distToEnd = Math.hypot(this.spider.x - branchEndX, this.spider.y - branchEndY);
             const distToStart = Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY);
 
-            // Anticipar llegada al extremo de la rama
-            if (distToEnd < 40 || distToStart < 40) {
-                const centerX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
-                const centerY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
-                const angleToCenter = Math.atan2(centerY - this.spider.y, centerX - this.spider.x);
-
-                // Giro anticipado suave
-                let angleDiff = angleToCenter - this.angle;
-                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-
-                this.angle += angleDiff * 0.05;
+            // Si está muy cerca del final o inicio, INVERTIR dirección
+            if (distToEnd < 20) {
+                // Llegó al final - invertir dirección completamente
+                this.angle = angle + Math.PI; // 180 grados
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+            } else if (distToStart < 20) {
+                // Llegó al inicio - invertir dirección
+                this.angle = angle;
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
             }
+
+            // Movimiento normal
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
         }
 
         this.movement.constrainToSurface(this.spider);
