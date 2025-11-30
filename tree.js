@@ -150,6 +150,9 @@ class Tree {
         const sub2Width = 20;
 
         this.drawSubBranch(ctx, sub2BaseX, sub2BaseY, sub2Angle, sub2Length, sub2Width);
+
+        // Dibujar el nido dentro del tronco
+        this.drawNest(ctx);
     }
 
     drawSubBranch(ctx, startX, startY, angle, length, baseWidth) {
@@ -189,4 +192,92 @@ class Tree {
         ctx.closePath();
         ctx.fill();
     }
+
+    drawNest(ctx) {
+        // Posición y tamaño del nido
+        const nestX = this.x + this.trunkWidth * 0.6;
+        const nestY = this.trunkHeight * 0.35;
+        const nestWidth = this.trunkWidth * 0.5;
+        const nestHeight = this.trunkHeight * 0.25;
+
+        // 1. Dibujar la cavidad orgánica
+        ctx.fillStyle = '#B8B8B8'; // Más oscuro que el tronco
+        ctx.beginPath();
+
+        // Crear forma orgánica usando curvas Bézier
+        const centerX = nestX;
+        const centerY = nestY;
+
+        // Puntos de control para forma irregular
+        const points = [
+            { x: centerX - nestWidth * 0.4, y: centerY - nestHeight * 0.3 },
+            { x: centerX + nestWidth * 0.2, y: centerY - nestHeight * 0.4 },
+            { x: centerX + nestWidth * 0.5, y: centerY - nestHeight * 0.1 },
+            { x: centerX + nestWidth * 0.4, y: centerY + nestHeight * 0.3 },
+            { x: centerX + nestWidth * 0.1, y: centerY + nestHeight * 0.5 },
+            { x: centerX - nestWidth * 0.3, y: centerY + nestHeight * 0.4 },
+            { x: centerX - nestWidth * 0.5, y: centerY + nestHeight * 0.1 },
+            { x: centerX - nestWidth * 0.4, y: centerY - nestHeight * 0.2 }
+        ];
+
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length; i++) {
+            const p1 = points[i];
+            const p2 = points[(i + 1) % points.length];
+            const p3 = points[(i + 2) % points.length];
+
+            const cp1x = p1.x + (p2.x - p1.x) * 0.5;
+            const cp1y = p1.y + (p2.y - p1.y) * 0.5;
+            const cp2x = p2.x - (p3.x - p2.x) * 0.3;
+            const cp2y = p2.y - (p3.y - p2.y) * 0.3;
+
+            ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+
+        // 2. Dibujar telarañas enredadas dentro de la cavidad
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1.5;
+
+        // Generar líneas aleatorias enredadas (con seed fija para consistencia)
+        const seed = 12345;
+        const random = (function (s) {
+            return function () {
+                s = Math.sin(s) * 10000;
+                return s - Math.floor(s);
+            };
+        })(seed);
+
+        const numLines = 20;
+        const webPoints = [];
+
+        // Generar puntos dentro de la cavidad
+        for (let i = 0; i < numLines; i++) {
+            const angle = (random() * Math.PI * 2);
+            const distance = random() * Math.min(nestWidth, nestHeight) * 0.3;
+            webPoints.push({
+                x: centerX + Math.cos(angle) * distance,
+                y: centerY + Math.sin(angle) * distance
+            });
+        }
+
+        // Conectar puntos con líneas enredadas
+        ctx.beginPath();
+        for (let i = 0; i < webPoints.length; i++) {
+            const p1 = webPoints[i];
+            const p2 = webPoints[(i + Math.floor(random() * 5) + 1) % webPoints.length];
+
+            ctx.moveTo(p1.x, p1.y);
+
+            // Línea curva para efecto más orgánico
+            const midX = (p1.x + p2.x) / 2 + (random() - 0.5) * 20;
+            const midY = (p1.y + p2.y) / 2 + (random() - 0.5) * 20;
+            ctx.quadraticCurveTo(midX, midY, p2.x, p2.y);
+        }
+        ctx.stroke();
+    }
 }
+
