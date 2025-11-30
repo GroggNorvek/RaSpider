@@ -55,46 +55,14 @@ class Tree {
 
         this.branches = [];
         this.mainBranches.forEach(main => {
-            this.branches.push(main);
-            this.branches.push(...main.subBranches);
-        });
-    }
+            draw(ctx) {
+                this.drawTrunk(ctx);
 
-    drawTrunk(ctx) {
-        ctx.fillStyle = '#3d2817';
-        ctx.strokeStyle = '#2a1810';
-        ctx.lineWidth = 1;
-
-        ctx.fillRect(this.x, this.y, this.trunkWidth, this.trunkHeight);
-
-        ctx.beginPath();
-        ctx.moveTo(this.x, this.y);
-        ctx.lineTo(this.x, this.y + this.trunkHeight);
-        ctx.stroke();
-    }
-
-    drawBranch(ctx, branch) {
-        const endX = branch.startX + Math.cos(branch.angle) * branch.length;
-        const endY = branch.startY + Math.sin(branch.angle) * branch.length;
-
-        ctx.strokeStyle = '#3d2817';
-        ctx.lineWidth = branch.thickness;
-        ctx.lineCap = 'round';
-
-        ctx.beginPath();
-        ctx.moveTo(branch.startX, branch.startY);
-        ctx.lineTo(endX, endY);
-        ctx.stroke();
-    }
-
-    draw(ctx) {
-        this.drawTrunk(ctx);
-
-        this.mainBranches.forEach(mainBranch => {
-            this.drawBranch(ctx, mainBranch);
-            mainBranch.subBranches.forEach(subBranch => {
-                this.drawBranch(ctx, subBranch);
-            });
-        });
-    }
-}
+                this.mainBranches.forEach(mainBranch => {
+                    this.drawBranch(ctx, mainBranch);
+                    mainBranch.subBranches.forEach(subBranch => {
+                        this.drawBranch(ctx, subBranch);
+                    });
+                });
+            }
+        }

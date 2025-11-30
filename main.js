@@ -24,8 +24,8 @@ const spiderController = new SpiderController(spider, movementSystem);
  * Loop principal del juego
  */
 function gameLoop() {
-    // Limpiar canvas (blanco hueso)
-    ctx.fillStyle = '#F5F5DC';
+    // Limpiar canvas (blanco)
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Dibujar árbol
