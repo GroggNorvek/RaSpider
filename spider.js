@@ -1,5 +1,5 @@
 /**
- * Spider - Movimiento lento y coordinado
+ * Spider - Ciclo de marcha realista con swing/stance
  */
 
 class Spider {
@@ -25,10 +25,6 @@ class Spider {
                 segment1Length: 25,
                 segment2Length: 30,
                 segment3Length: 20,
-                isLifted: false,
-                liftProgress: 0,
-                targetX: 0,
-                targetY: 0,
                 angle1: angle,
                 angle2: angle - Math.PI / 4,
                 angle3: angle - Math.PI / 3,
@@ -37,7 +33,12 @@ class Spider {
                 joint2X: 0,
                 joint2Y: 0,
                 tipX: 0,
-                tipY: 0
+                tipY: 0,
+                inSwing: false,
+                swingStartX: 0,
+                swingStartY: 0,
+                stanceX: 0,
+                stanceY: 0
             });
         }
     }
@@ -84,91 +85,153 @@ class Spider {
 
         leg.angle3 = Math.atan2(targetY - leg.joint2Y, targetX - leg.joint2X);
         leg.angle3 += bendDirection * 0.1;
+
+        leg.tipX = leg.joint2X + Math.cos(leg.angle3) * l3;
+        leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * l3;
     }
 
-    updateLegPositions() {
+    updateWalkingGroups() {
+        if (!this.isWalking) return;
+
+        this.walkCycle += 0.012;
+
         this.legs.forEach(leg => {
-            const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
-            const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
+            this.updateLegGaitCycle(leg);
+        });
+    }
 
-            leg.joint1X = attachX + Math.cos(leg.angle1) * leg.segment1Length;
-            leg.joint1Y = attachY + Math.sin(leg.angle1) * leg.segment1Length;
+    updateLegGaitCycle(leg) {
+        const groupA = [0, 2, 5, 7];
+        const isGroupA = groupA.includes(leg.index);
+        const phaseOffset = isGroupA ? 0 : Math.PI;
+        const individualOffset = leg.index * 0.2;
+        const phase = (this.walkCycle + phaseOffset + individualOffset) % (Math.PI * 2);
 
-            leg.joint2X = leg.joint1X + Math.cos(leg.angle2) * leg.segment2Length;
-            leg.joint2Y = leg.joint1Y + Math.sin(leg.angle2) * leg.segment2Length;
+        // Determinar si está en swing o stance
+        const isSwingPhase = phase < Math.PI;
 
-            leg.tipX = leg.joint2X + Math.cos(leg.angle3) * leg.segment3Length;
+        const restDistance = 55;
+        const strideLength = 12;
 
-            ctx.strokeStyle = '#2a2a2a';
-            ctx.lineWidth = 1.5;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
+        if (isSwingPhase) {
+            // SWING: Levantar y mover hacia adelante
+            const swingProgress = phase / Math.PI;
 
-            ctx.beginPath();
-            ctx.moveTo(attachX, attachY);
+            const forwardOffset = -strideLength / 2 + strideLength * swingProgress;
+            const targetAngle = leg.baseAngle + forwardOffset * 0.015;
+            const targetX = this.x + Math.cos(targetAngle) * restDistance;
+            const targetY = this.y + Math.sin(targetAngle) * restDistance;
 
-            const cp1X = attachX + (leg.joint1X - attachX) * 0.5;
-            const cp1Y = attachY + (leg.joint1Y - attachY) * 0.5 - 3;
-            ctx.quadraticCurveTo(cp1X, cp1Y, leg.joint1X, leg.joint1Y);
+            const liftHeight = Math.sin(swingProgress * Math.PI) * 10;
 
-            const cp2X = leg.joint1X + (leg.joint2X - leg.joint1X) * 0.5;
-            const cp2Y = leg.joint1Y + (leg.joint2Y - leg.joint1Y) * 0.5 + 2;
-            ctx.quadraticCurveTo(cp2X, cp2Y, leg.joint2X, leg.joint2Y);
+            const easeProgress = swingProgress < 0.5
+                ? 2 * swingProgress * swingProgress
+                : 1 - Math.pow(-2 * swingProgress + 2, 2) / 2;
 
-            ctx.quadraticCurveTo(
-                leg.joint2X + (leg.tipX - leg.joint2X) * 0.6,
-                leg.joint2Y + (leg.tipY - leg.joint2Y) * 0.6,
-                leg.tipX, leg.tipY
-            );
+            if (!leg.inSwing) {
+                leg.inSwing = true;
+                leg.swingStartX = leg.tipX;
+                leg.swingStartY = leg.tipY;
+            }
 
-            ctx.stroke();
+            const currentX = leg.swingStartX + (targetX - leg.swingStartX) * easeProgress;
+            const currentY = leg.swingStartY + (targetY - leg.swingStartY) * easeProgress;
+
+            this.solveIK(leg, currentX, currentY - liftHeight);
+
+        } else {
+            // STANCE: Plantar y empujar
+            const stanceProgress = (phase - Math.PI) / Math.PI;
+
+            if (leg.inSwing) {
+                leg.inSwing = false;
+                leg.stanceX = leg.tipX;
+                leg.stanceY = leg.tipY;
+            }
+
+            const pushBack = stanceProgress * strideLength;
+            const stanceAngle = leg.baseAngle - pushBack * 0.015;
+
+            const stanceTargetX = this.x + Math.cos(stanceAngle) * restDistance;
+            const stanceTargetY = this.y + Math.sin(stanceAngle) * restDistance;
+
+            this.solveIK(leg, stanceTargetX, stanceTargetY);
         }
+    }
+
+    drawLeg(ctx, leg) {
+        const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
+        const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
+
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1.5;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(attachX, attachY);
+
+        const cp1X = attachX + (leg.joint1X - attachX) * 0.5;
+        const cp1Y = attachY + (leg.joint1Y - attachY) * 0.5 - 3;
+        ctx.quadraticCurveTo(cp1X, cp1Y, leg.joint1X, leg.joint1Y);
+
+        const cp2X = leg.joint1X + (leg.joint2X - leg.joint1X) * 0.5;
+        const cp2Y = leg.joint1Y + (leg.joint2Y - leg.joint1Y) * 0.5 + 2;
+        ctx.quadraticCurveTo(cp2X, cp2Y, leg.joint2X, leg.joint2Y);
+
+        ctx.quadraticCurveTo(
+            leg.joint2X + (leg.tipX - leg.joint2X) * 0.6,
+            leg.joint2Y + (leg.tipY - leg.joint2Y) * 0.6,
+            leg.tipX, leg.tipY
+        );
+
+        ctx.stroke();
+    }
 
     drawBody(ctx) {
-            ctx.fillStyle = '#1a1a1a';
-            ctx.strokeStyle = '#2a2a2a';
-            ctx.lineWidth = 1;
+        ctx.fillStyle = '#1a1a1a';
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1;
 
-            ctx.beginPath();
+        ctx.beginPath();
 
-            const r = this.bodyRadius;
-            const smoothness = 0.55;
-            const offset = r * smoothness;
+        const r = this.bodyRadius;
+        const smoothness = 0.55;
+        const offset = r * smoothness;
 
-            ctx.moveTo(this.x, this.y - r);
+        ctx.moveTo(this.x, this.y - r);
 
-            ctx.bezierCurveTo(
-                this.x + offset, this.y - r,
-                this.x + r, this.y - offset,
-                this.x + r, this.y
-            );
-            ctx.bezierCurveTo(
-                this.x + r, this.y + offset,
-                this.x + offset, this.y + r,
-                this.x, this.y + r
-            );
-            ctx.bezierCurveTo(
-                this.x - offset, this.y + r,
-                this.x - r, this.y + offset,
-                this.x - r, this.y
-            );
-            ctx.bezierCurveTo(
-                this.x - r, this.y - offset,
-                this.x - offset, this.y - r,
-                this.x, this.y - r
-            );
+        ctx.bezierCurveTo(
+            this.x + offset, this.y - r,
+            this.x + r, this.y - offset,
+            this.x + r, this.y
+        );
+        ctx.bezierCurveTo(
+            this.x + r, this.y + offset,
+            this.x + offset, this.y + r,
+            this.x, this.y + r
+        );
+        ctx.bezierCurveTo(
+            this.x - offset, this.y + r,
+            this.x - r, this.y + offset,
+            this.x - r, this.y
+        );
+        ctx.bezierCurveTo(
+            this.x - r, this.y - offset,
+            this.x - offset, this.y - r,
+            this.x, this.y - r
+        );
 
-            ctx.fill();
-            ctx.stroke();
-        }
+        ctx.fill();
+        ctx.stroke();
+    }
 
     update() {
-            this.updateWalkingGroups();
-            this.updateLegPositions();
-        }
+        this.updateWalkingGroups();
+    }
 
     draw(ctx) {
-            for(let i = 0; i< 4; i++) {
+        for (let i = 0; i < 4; i++) {
             this.drawLeg(ctx, this.legs[i]);
         }
 
