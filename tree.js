@@ -55,14 +55,46 @@ class Tree {
 
         this.branches = [];
         this.mainBranches.forEach(main => {
-            draw(ctx) {
-                this.drawTrunk(ctx);
+            this.branches.push(main);
+            this.branches.push(...main.subBranches);
+        });
+    }
 
-                this.mainBranches.forEach(mainBranch => {
-                    this.drawBranch(ctx, mainBranch);
-                    mainBranch.subBranches.forEach(subBranch => {
-                        this.drawBranch(ctx, subBranch);
-                    });
-                });
-            }
-        }
+    drawTrunk(ctx) {
+        ctx.fillStyle = '#D3D3D3'; // Gris claro
+        ctx.strokeStyle = '#A9A9A9'; // Gris medio para borde
+        ctx.lineWidth = 1;
+
+        ctx.fillRect(this.x, this.y, this.trunkWidth, this.trunkHeight);
+
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + this.trunkHeight);
+        ctx.stroke();
+    }
+
+    drawBranch(ctx, branch) {
+        const endX = branch.startX + Math.cos(branch.angle) * branch.length;
+        const endY = branch.startY + Math.sin(branch.angle) * branch.length;
+
+        ctx.strokeStyle = '#B0B0B0'; // Gris claro para ramas
+        ctx.lineWidth = branch.thickness;
+        ctx.lineCap = 'round';
+
+        ctx.beginPath();
+        ctx.moveTo(branch.startX, branch.startY);
+        ctx.lineTo(endX, endY);
+        ctx.stroke();
+    }
+
+    draw(ctx) {
+        this.drawTrunk(ctx);
+
+        this.mainBranches.forEach(mainBranch => {
+            this.drawBranch(ctx, mainBranch);
+            mainBranch.subBranches.forEach(subBranch => {
+                this.drawBranch(ctx, subBranch);
+            });
+        });
+    }
+}
