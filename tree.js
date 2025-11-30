@@ -35,7 +35,7 @@ class Tree {
                 startY: yPos,
                 length: mainLength,
                 baseAngle: baseAngle,
-                thickness: 275, // Muchísimo más anchas - coherente con el tronco
+                thickness: 80, // Grosor coherente con árbol y araña
                 // Puntos de control para curva Bézier
                 cp1X: this.x + Math.cos(baseAngle + 0.3) * mainLength * 0.4,
                 cp1Y: yPos + Math.sin(baseAngle + 0.3) * mainLength * 0.4,
@@ -60,7 +60,7 @@ class Tree {
                     startY: subStartY,
                     length: subLength,
                     baseAngle: subAngle,
-                    thickness: 100, // Proporcionalmente más anchas
+                    thickness: 35, // Grosor coherente
                     cp1X: subStartX + Math.cos(subAngle + 0.4) * subLength * 0.5,
                     cp1Y: subStartY + Math.sin(subAngle + 0.4) * subLength * 0.5,
                     endX: subStartX + Math.cos(subAngle) * subLength,
@@ -191,7 +191,7 @@ class Tree {
         }
 
         // Dibujar forma cerrada
-        ctx.fillStyle = '#B8956A';
+        ctx.fillStyle = '#B0B0B0';
         ctx.beginPath();
 
         // Contorno superior
@@ -209,7 +209,7 @@ class Tree {
         ctx.fill();
 
         // Borde sutil para definir mejor la forma
-        ctx.strokeStyle = '#8B6F47';
+        ctx.strokeStyle = '#909090';
         ctx.lineWidth = 2;
         ctx.stroke();
     }
