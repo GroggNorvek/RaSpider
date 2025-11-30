@@ -201,7 +201,7 @@ class Spider {
             this.x + offset, this.y + r,
             this.x, this.y + r
         );
-        ctx.bez ierCurveTo(
+        ctx.bezierCurveTo(
             this.x - offset, this.y + r,
             this.x - r, this.y + offset,
             this.x - r, this.y
