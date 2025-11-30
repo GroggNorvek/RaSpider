@@ -307,27 +307,34 @@ class MatriarchController {
         this.spider.velocity = vx;
         this.spider.velocityY = vy;
 
-        // Constrain estricto al nido
-        const nest = this.tree.nest;
-        const margin = 0.35; // Usar 35% del área del nido
+        // Constrain al tronco completo (evitar ramas)
+        const trunkLeft = this.tree.x + 20;
+        const trunkRight = this.tree.x + this.tree.trunkWidth - 20;
+        const trunkTop = this.tree.y + 50;
+        const trunkBottom = this.tree.y + this.tree.trunkHeight - 50;
 
-        this.spider.x = Math.max(
-            nest.x - nest.width * margin,
-            Math.min(nest.x + nest.width * margin, this.spider.x)
-        );
-        this.spider.y = Math.max(
-            nest.y - nest.height * margin,
-            Math.min(nest.y + nest.height * margin, this.spider.y)
-        );
+        // Limitar a los bordes del tronco
+        this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
+        this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
 
-        // Rebotar en bordes del nido
-        if (this.spider.x <= nest.x - nest.width * margin ||
-            this.spider.x >= nest.x + nest.width * margin) {
+        // Rebotar en bordes del tronco
+        if (this.spider.x <= trunkLeft + 10 || this.spider.x >= trunkRight - 10) {
             this.angle = Math.PI - this.angle;
         }
-        if (this.spider.y <= nest.y - nest.height * margin ||
-            this.spider.y >= nest.y + nest.height * margin) {
+        if (this.spider.y <= trunkTop + 10 || this.spider.y >= trunkBottom - 10) {
             this.angle = -this.angle;
+        }
+
+        // Evitar la zona de la rama principal (rechazar si está muy cerca)
+        const branchY = this.tree.branchY;
+        const branchProximity = 60; // Distancia de seguridad
+        if (Math.abs(this.spider.y - branchY) < branchProximity && this.spider.x > trunkLeft + 100) {
+            // Si está cerca de la rama, empujar hacia arriba o abajo
+            if (this.spider.y < branchY) {
+                this.angle = -Math.PI / 2; // Hacia arriba
+            } else {
+                this.angle = Math.PI / 2; // Hacia abajo
+            }
         }
     }
 }
