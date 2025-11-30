@@ -1,6 +1,6 @@
 /**
- * Spider - Araña vectorial con 8 patas articuladas
- * Animación con Walking Groups (Factorio FFF-425)
+ * Spider - Araña minimalista
+ * Octógono con 8 patas articuladas desde cada vértice
  */
 
 class Spider {
@@ -8,10 +8,8 @@ class Spider {
         this.x = x;
         this.y = y;
 
-        // Tamaños del cuerpo
-        this.cephalothoraxRadius = 15;
-        this.abdomenWidth = 12;
-        this.abdomenLength = 35;
+        // Tamaño del octógono
+        this.bodyRadius = 12;
 
         // Patas
         this.legs = [];
@@ -19,36 +17,27 @@ class Spider {
     }
 
     /**
-     * Inicializa las 8 patas con Walking Groups
+     * Inicializa las 8 patas desde los vértices del octógono
      */
     initializeLegs() {
-        const legConfig = [
-            // [ángulo, lado, grupo]
-            { angle: -Math.PI * 0.7, side: 'left', group: 0 },
-            { angle: -Math.PI * 0.5, side: 'left', group: 2 },
-            { angle: -Math.PI * 0.3, side: 'left', group: 1 },
-            { angle: -Math.PI * 0.1, side: 'left', group: 3 },
-            { angle: Math.PI * 0.1, side: 'right', group: 3 },
-            { angle: Math.PI * 0.3, side: 'right', group: 1 },
-            { angle: Math.PI * 0.5, side: 'right', group: 2 },
-            { angle: Math.PI * 0.7, side: 'right', group: 0 }
-        ];
+        // 8 patas, una en cada vértice del octógono
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i - Math.PI / 2; // Empezar desde arriba
 
-        legConfig.forEach((config, index) => {
             this.legs.push({
-                index,
-                baseAngle: config.angle,
-                walkingGroup: config.group,
-                segment1Length: 30,
-                segment2Length: 35,
-                segment3Length: 25,
+                index: i,
+                baseAngle: angle,
+                walkingGroup: i % 4, // 4 grupos
+                segment1Length: 25,
+                segment2Length: 30,
+                segment3Length: 20,
                 isLifted: false,
                 liftProgress: 0,
                 targetX: 0,
                 targetY: 0,
-                angle1: config.angle,
-                angle2: config.angle - Math.PI / 4,
-                angle3: config.angle - Math.PI / 3,
+                angle1: angle,
+                angle2: angle - Math.PI / 4,
+                angle3: angle - Math.PI / 3,
                 joint1X: 0,
                 joint1Y: 0,
                 joint2X: 0,
@@ -56,7 +45,7 @@ class Spider {
                 tipX: 0,
                 tipY: 0
             });
-        });
+        }
 
         this.currentWalkingGroup = 0;
         this.walkCycle = 0;
@@ -64,11 +53,12 @@ class Spider {
     }
 
     /**
-     * IK solver (FFF-425)
+     * IK solver
      */
     solveIK(leg, targetX, targetY) {
-        const attachX = this.x + Math.cos(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
-        const attachY = this.y + Math.sin(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
+        // Punto de anclaje en el vértice del octógono
+        const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
+        const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
 
         const dx = targetX - attachX;
         const dy = targetY - attachY;
@@ -91,13 +81,10 @@ class Spider {
         );
     }
 
-    /**
-     * Actualiza posiciones de articulaciones
-     */
     updateLegPositions() {
         this.legs.forEach(leg => {
-            const attachX = this.x + Math.cos(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
-            const attachY = this.y + Math.sin(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
+            const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
+            const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
 
             leg.joint1X = attachX + Math.cos(leg.angle1) * leg.segment1Length;
             leg.joint1Y = attachY + Math.sin(leg.angle1) * leg.segment1Length;
@@ -111,9 +98,6 @@ class Spider {
         });
     }
 
-    /**
-     * Walking Groups (FFF-425)
-     */
     updateWalkingGroups() {
         if (!this.isWalking) return;
 
@@ -131,11 +115,8 @@ class Spider {
         });
     }
 
-    /**
-     * Stepping individual (FFF-425)
-     */
     updateLegStepping(leg) {
-        const restDistance = 70;
+        const restDistance = 60;
 
         leg.targetX = this.x + Math.cos(leg.baseAngle) * restDistance;
         leg.targetY = this.y + Math.sin(leg.baseAngle) * restDistance;
@@ -151,14 +132,14 @@ class Spider {
             const t = leg.liftProgress;
             const currentX = leg.tipX + (leg.targetX - leg.tipX) * t;
             const currentY = leg.tipY + (leg.targetY - leg.tipY) * t;
-            const liftHeight = Math.sin(t * Math.PI) * 15;
+            const liftHeight = Math.sin(t * Math.PI) * 12;
 
             this.solveIK(leg, currentX, currentY - liftHeight);
 
         } else {
             const dist = Math.hypot(leg.tipX - leg.targetX, leg.tipY - leg.targetY);
 
-            if (dist > 30) {
+            if (dist > 25) {
                 leg.isLifted = true;
                 leg.liftProgress = 0;
             } else {
@@ -168,14 +149,14 @@ class Spider {
     }
 
     /**
-     * Dibuja una pata
+     * Dibuja una pata (minimalista)
      */
     drawLeg(ctx, leg) {
-        const attachX = this.x + Math.cos(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
-        const attachY = this.y + Math.sin(leg.baseAngle) * this.cephalothoraxRadius * 0.7;
+        const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
+        const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
 
-        ctx.strokeStyle = '#000000';
-        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1.5;
         ctx.lineCap = 'round';
         ctx.lineJoin = 'round';
 
@@ -185,37 +166,31 @@ class Spider {
         ctx.lineTo(leg.joint2X, leg.joint2Y);
         ctx.lineTo(leg.tipX, leg.tipY);
         ctx.stroke();
-
-        ctx.fillStyle = '#000000';
-        ctx.beginPath();
-        ctx.arc(leg.joint1X, leg.joint1Y, 2, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(leg.joint2X, leg.joint2Y, 2, 0, Math.PI * 2);
-        ctx.fill();
     }
 
-    drawCephalothorax(ctx) {
-        ctx.fillStyle = '#000000';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.cephalothoraxRadius, 0, Math.PI * 2);
-        ctx.fill();
-    }
+    /**
+     * Dibuja el octógono (cuerpo)
+     */
+    drawBody(ctx) {
+        ctx.fillStyle = '#1a1a1a';
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 1;
 
-    drawAbdomen(ctx) {
-        const abdomenX = this.x;
-        const abdomenY = this.y + this.cephalothoraxRadius;
-
-        ctx.fillStyle = '#000000';
         ctx.beginPath();
-        ctx.ellipse(
-            abdomenX,
-            abdomenY + this.abdomenLength / 2,
-            this.abdomenWidth,
-            this.abdomenLength,
-            0, 0, Math.PI * 2
-        );
+        for (let i = 0; i < 8; i++) {
+            const angle = (Math.PI * 2 / 8) * i - Math.PI / 2;
+            const px = this.x + Math.cos(angle) * this.bodyRadius;
+            const py = this.y + Math.sin(angle) * this.bodyRadius;
+
+            if (i === 0) {
+                ctx.moveTo(px, py);
+            } else {
+                ctx.lineTo(px, py);
+            }
+        }
+        ctx.closePath();
         ctx.fill();
+        ctx.stroke();
     }
 
     update() {
@@ -224,13 +199,14 @@ class Spider {
     }
 
     draw(ctx) {
+        // Patas traseras
         for (let i = 0; i < 4; i++) {
             this.drawLeg(ctx, this.legs[i]);
         }
 
-        this.drawAbdomen(ctx);
-        this.drawCephalothorax(ctx);
+        this.drawBody(ctx);
 
+        // Patas delanteras
         for (let i = 4; i < 8; i++) {
             this.drawLeg(ctx, this.legs[i]);
         }

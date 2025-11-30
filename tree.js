@@ -1,142 +1,109 @@
 /**
- * Tree - Árbol procedural con ramas
+ * Tree - Árbol minimalista
+ * Tronco en tercio derecho, ramas hacia la izquierda
  */
 
 class Tree {
-    constructor(x, y) {
-        this.x = x; // Posición base del tronco
-        this.y = y;
+    constructor(canvasWidth, canvasHeight) {
+        // Tronco en el tercio derecho
+        this.x = canvasWidth * 0.83; // 83% hacia la derecha
+        this.y = 0;
 
-        // Dimensiones del tronco
-        this.trunkWidth = 80;
-        this.trunkHeight = 500;
+        this.trunkWidth = 60;
+        this.trunkHeight = canvasHeight;
 
-        // Ramas
-        this.branches = [];
-        this.generateBranches();
+        // Ramas principales (1-3)
+        this.mainBranches = [];
+        this.generateMainBranches();
     }
 
     /**
-     * Genera entre 3 y 7 ramas proceduralmente
+     * Genera 1-3 ramas principales con sub-ramas
      */
-    generateBranches() {
-        const branchCount = Math.floor(Math.random() * 5) + 3; // 3-7 ramas
+    generateMainBranches() {
+        const branchCount = Math.floor(Math.random() * 3) + 1; // 1-3
 
         for (let i = 0; i < branchCount; i++) {
-            // Distribuir ramas a lo largo del tronco
-            const yPos = this.y + 100 + (this.trunkHeight - 200) * (i / (branchCount - 1));
+            // Distribuir a lo largo del tronco
+            const yPos = 150 + (this.trunkHeight - 300) * (i / Math.max(1, branchCount - 1));
 
-            // Alternar lados (izquierda/derecha)
-            const side = i % 2 === 0 ? -1 : 1;
+            // Rama principal hacia la izquierda
+            const mainLength = 120 + Math.random() * 80; // 120-200px
+            const mainAngle = Math.PI + (Math.random() * 0.4 - 0.2); // Aprox. hacia izquierda
 
-            // Longitud aleatoria de la rama
-            const length = 80 + Math.random() * 60; // 80-140 px
-
-            // Ángulo de la rama (-45 a -20 grados hacia arriba)
-            const angle = -Math.PI / 4 + Math.random() * Math.PI / 8;
-
-            this.branches.push({
-                startX: this.x + (this.trunkWidth / 2) * side,
+            const mainBranch = {
+                startX: this.x - this.trunkWidth / 2,
                 startY: yPos,
-                length: length,
-                angle: angle * side,
-                thickness: 15 + Math.random() * 10,
-                side: side
-            });
+                length: mainLength,
+                angle: mainAngle,
+                thickness: 8,
+                subBranches: []
+            };
+
+            // Generar 1-2 sub-ramas pequeñas
+            const subCount = Math.floor(Math.random() * 2) + 1;
+            for (let j = 0; j < subCount; j++) {
+                const t = 0.5 + Math.random() * 0.4; // Posición en rama principal
+                const subStartX = mainBranch.startX + Math.cos(mainAngle) * mainLength * t;
+                const subStartY = mainBranch.startY + Math.sin(mainAngle) * mainLength * t;
+
+                mainBranch.subBranches.push({
+                    startX: subStartX,
+                    startY: subStartY,
+                    length: 30 + Math.random() * 30,
+                    angle: mainAngle + (Math.random() * 0.6 - 0.3),
+                    thickness: 3
+                });
+            }
+
+            this.mainBranches.push(mainBranch);
         }
+
+        // Crear array plano de todas las ramas para compatibilidad
+        this.branches = [];
+        this.mainBranches.forEach(main => {
+            this.branches.push(main);
+            this.branches.push(...main.subBranches);
+        });
     }
 
     /**
-     * Dibuja el tronco del árbol
+     * Dibuja el tronco (minimalista)
      */
     drawTrunk(ctx) {
-        // Gradiente para el tronco
-        const gradient = ctx.createLinearGradient(
-            this.x - this.trunkWidth / 2, 0,
-            this.x + this.trunkWidth / 2, 0
-        );
-        gradient.addColorStop(0, '#3d2817');
-        gradient.addColorStop(0.5, '#5a3d2b');
-        gradient.addColorStop(1, '#3d2817');
+        ctx.fillStyle = '#3d2817';
+        ctx.strokeStyle = '#2a1810';
+        ctx.lineWidth = 1;
 
-        ctx.fillStyle = gradient;
-
-        // Tronco principal
-        ctx.beginPath();
-        ctx.rect(
+        // Rectángulo simple
+        ctx.fillRect(
             this.x - this.trunkWidth / 2,
             this.y,
             this.trunkWidth,
             this.trunkHeight
         );
-        ctx.fill();
 
-        // Bordes del tronco
-        ctx.strokeStyle = '#2a1810';
-        ctx.lineWidth = 2;
+        // Borde izquierdo
+        ctx.beginPath();
+        ctx.moveTo(this.x - this.trunkWidth / 2, this.y);
+        ctx.lineTo(this.x - this.trunkWidth / 2, this.y + this.trunkHeight);
         ctx.stroke();
-
-        // Textura de corteza (líneas verticales)
-        ctx.strokeStyle = '#2a1810';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < 5; i++) {
-            const xOffset = -this.trunkWidth / 2 + (this.trunkWidth / 5) * i;
-            ctx.beginPath();
-            ctx.moveTo(this.x + xOffset, this.y);
-            ctx.lineTo(this.x + xOffset, this.y + this.trunkHeight);
-            ctx.stroke();
-        }
     }
 
     /**
-     * Dibuja una rama individual
+     * Dibuja una rama (minimalista)
      */
     drawBranch(ctx, branch) {
         const endX = branch.startX + Math.cos(branch.angle) * branch.length;
         const endY = branch.startY + Math.sin(branch.angle) * branch.length;
 
-        // Gradiente de la rama
-        const gradient = ctx.createLinearGradient(
-            branch.startX, branch.startY,
-            endX, endY
-        );
-        gradient.addColorStop(0, '#5a3d2b');
-        gradient.addColorStop(1, '#3d2817');
-
-        ctx.strokeStyle = gradient;
+        ctx.strokeStyle = '#3d2817';
         ctx.lineWidth = branch.thickness;
         ctx.lineCap = 'round';
 
-        // Rama principal
         ctx.beginPath();
         ctx.moveTo(branch.startX, branch.startY);
         ctx.lineTo(endX, endY);
-        ctx.stroke();
-
-        // Pequeñas ramitas al final
-        const twigLength = 15;
-        const twigAngle1 = branch.angle - Math.PI / 6;
-        const twigAngle2 = branch.angle + Math.PI / 6;
-
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = '#3d2817';
-
-        // Ramita 1
-        ctx.beginPath();
-        ctx.moveTo(endX, endY);
-        ctx.lineTo(
-            endX + Math.cos(twigAngle1) * twigLength,
-            endY + Math.sin(twigAngle1) * twigLength
-        );
-        ctx.stroke();
-
-        // Ramita 2
-        ctx.beginPath();
-        ctx.moveTo(endX, endY);
-        ctx.lineTo(
-            endX + Math.cos(twigAngle2) * twigLength,
-            endY + Math.sin(twigAngle2) * twigLength
-        );
         ctx.stroke();
     }
 
@@ -144,12 +111,14 @@ class Tree {
      * Dibuja el árbol completo
      */
     draw(ctx) {
-        // Dibujar tronco
         this.drawTrunk(ctx);
 
-        // Dibujar todas las ramas
-        this.branches.forEach(branch => {
-            this.drawBranch(ctx, branch);
+        // Dibujar ramas principales y sub-ramas
+        this.mainBranches.forEach(mainBranch => {
+            this.drawBranch(ctx, mainBranch);
+            mainBranch.subBranches.forEach(subBranch => {
+                this.drawBranch(ctx, subBranch);
+            });
         });
     }
 }

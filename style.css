@@ -5,7 +5,7 @@
 }
 
 body {
-    background: #1a1a2e;
+    background: #F5F5DC; /* Blanco hueso */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,7 +14,7 @@ body {
 }
 
 #gameCanvas {
-    background: #0f0f1e;
-    border: 2px solid #4a4a6a;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background: #F5F5DC;
+    border: none;
+    box-shadow: none;
 }

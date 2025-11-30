@@ -10,8 +10,8 @@ const ctx = canvas.getContext('2d');
 canvas.width = 1200;
 canvas.height = 800;
 
-// Crear árbol en el centro
-const tree = new Tree(canvas.width / 2, 50);
+// Crear árbol (tercio derecho)
+const tree = new Tree(canvas.width, canvas.height);
 
 // Crear araña en el tronco
 const spider = new Spider(canvas.width / 2, 300);
@@ -24,8 +24,8 @@ const spiderController = new SpiderController(spider, movementSystem);
  * Loop principal del juego
  */
 function gameLoop() {
-    // Limpiar canvas
-    ctx.fillStyle = '#0f0f1e';
+    // Limpiar canvas (blanco hueso)
+    ctx.fillStyle = '#F5F5DC';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Dibujar árbol
