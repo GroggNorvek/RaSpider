@@ -200,7 +200,7 @@ class Spider {
 
         const cp1X = attachX + (leg.joint1X - attachX) * 0.5;
         const cp1Y = attachY + (leg.joint1Y - attachY) * 0.5 - 3;
-        ctx.quadr aticCurveTo(cp1X, cp1Y, leg.joint1X, leg.joint1Y);
+        ctx.quadraticCurveTo(cp1X, cp1Y, leg.joint1X, leg.joint1Y);
 
         const cp2X = leg.joint1X + (leg.joint2X - leg.joint1X) * 0.5;
         const cp2Y = leg.joint1Y + (leg.joint2Y - leg.joint1Y) * 0.5 + 2;
