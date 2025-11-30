@@ -116,7 +116,7 @@ class Spider {
         const groupA = [0, 2, 5, 7];
         const isGroupA = groupA.includes(leg.index);
         const phaseOffset = isGroupA ? 0 : Math.PI;
-        const individualOffset = leg.index * 0.15;
+        const individualOffset = leg.index * 0.25;
         const phase = (this.walkCycle + phaseOffset + individualOffset) % (Math.PI * 2);
 
         const restDistance = 55;
