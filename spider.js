@@ -1,5 +1,5 @@
 /**
- * Spider - Reach-Pull/Push con detección 2D y rotación
+ * Spider - Reach-Pull/Push con detección 2D (rotación desactivada)
  */
 
 class Spider {
@@ -16,9 +16,9 @@ class Spider {
         this.velocity = 0;
         this.velocityY = 1;
 
-        // Rotación 2D del cuerpo
-        this.rotation = Math.PI / 2; // Empieza mirando hacia abajo
-        this.targetRotation = Math.PI / 2;
+        // Rotación DESACTIVADA - cuerpo estático
+        this.rotation = 0;
+        this.targetRotation = 0;
     }
 
     initializeLegs() {
@@ -45,7 +45,7 @@ class Spider {
     }
 
     solveIK(leg, targetX, targetY) {
-        // Aplicar rotación del cuerpo al ángulo base de la pata
+        // Sin rotación del cuerpo
         const rotatedAngle = leg.baseAngle + this.rotation;
 
         const attachX = this.x + Math.cos(rotatedAngle) * this.bodyRadius;
@@ -119,7 +119,7 @@ class Spider {
         const restDistance = 55;
         const strideLength = 18;
 
-        // Detección 2D con producto punto (rotación del cuerpo incluida)
+        // Detección 2D con producto punto (sin rotación del cuerpo)
         const rotatedAngle = leg.baseAngle + this.rotation;
         const legDirX = Math.cos(rotatedAngle);
         const legDirY = Math.sin(rotatedAngle);
@@ -258,27 +258,8 @@ class Spider {
     }
 
     update() {
-        // Actualizar rotación objetivo basada en velocidad
-        const speed = Math.hypot(this.velocity, this.velocityY);
-        if (speed > 0.1) {
-            this.targetRotation = Math.atan2(this.velocityY, this.velocity);
-        }
-
-        // Interpolación suave de rotación
-        let rotDiff = this.targetRotation - this.rotation;
-
-        // Normalizar a rango [-π, π]
-        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
-        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
-
-        // Limitar rotación máxima a 45° para evitar giros de 180°
-        const maxRotation = Math.PI / 4; // 45 grados
-        if (Math.abs(rotDiff) > maxRotation) {
-            rotDiff = Math.sign(rotDiff) * maxRotation;
-        }
-
-        // Interpolar (0.02 = rotación ultra suave)
-        this.rotation += rotDiff * 0.02;
+        // ROTACIÓN DESACTIVADA - Enfoque en movimiento de patas estilo Factorio
+        // this.rotation permanece en 0
 
         this.updateWalkingGroups();
     }
