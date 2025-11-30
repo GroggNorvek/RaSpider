@@ -19,7 +19,6 @@ class Spider {
         // Rotación 2D del cuerpo
         this.rotation = Math.PI / 2; // Empieza mirando hacia abajo
         this.targetRotation = Math.PI / 2;
-        this.rotationVelocity = 0; // Velocidad angular
     }
 
     initializeLegs() {
@@ -262,6 +261,25 @@ class Spider {
         // Actualizar rotación objetivo basada en velocidad
         const speed = Math.hypot(this.velocity, this.velocityY);
         if (speed > 0.1) {
+            this.targetRotation = Math.atan2(this.velocityY, this.velocity);
+        }
+
+        // Interpolación suave de rotación
+        let rotDiff = this.targetRotation - this.rotation;
+
+        // Normalizar a rango [-π, π]
+        while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
+        while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
+
+        // Interpolar (0.15 = velocidad de rotación)
+        this.rotation += rotDiff * 0.15;
+
+        this.updateWalkingGroups();
+    }
+
+    draw(ctx) {
+        for (let i = 0; i < 4; i++) {
+            this.drawLeg(ctx, this.legs[i]);
         }
 
         this.drawBody(ctx);
