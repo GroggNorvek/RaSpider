@@ -124,28 +124,6 @@ class SpiderController {
             // Detectar colisión con bordes y cambiar dirección
             let hitEdge = false;
 
-            if (newX < trunkLeft || newX > trunkRight) {
-                this.vx *= -1; // Invertir horizontal
-                hitEdge = true;
-            }
-
-            if (newY < trunkTop || newY > trunkBottom) {
-                this.vy *= -1; // Invertir vertical
-                hitEdge = true;
-            }
-
-            // Si golpeó borde, nueva dirección aleatoria
-            if (hitEdge) {
-                this.angle = Math.random() * Math.PI * 2;
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.spider.movementDirection = this.vy > 0 ? 1 : -1;
-            }
-
-        } else if (surface.type === 'branch') {
-            const branch = surface.branch;
-            const angle = branch.angle;
-
-            this.spider.x += Math.cos(angle) * this.speed;
             this.spider.y += Math.sin(angle) * this.speed;
 
             const distToEnd = Math.hypot(

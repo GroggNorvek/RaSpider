@@ -107,7 +107,7 @@ class Spider {
         const restDistance = 55;
         const strideLength = 18;
 
-        // Detección 2D mejorada con producto punto
+        // Detección 2D: producto punto entre dirección de pata y dirección de velocidad
         const legDirX = Math.cos(leg.baseAngle);
         const legDirY = Math.sin(leg.baseAngle);
 
@@ -115,7 +115,7 @@ class Spider {
         const velX = speed > 0 ? (this.velocity || 0) / speed : 0;
         const velY = speed > 0 ? (this.velocityY || 0) / speed : 1;
 
-        // Producto punto: positivo = delantera, negativo = trasera
+        // Producto punto: >0 = delantera, <0 = trasera
         const dotProduct = legDirX * velX + legDirY * velY;
         const isFrontLeg = dotProduct > 0;
 
@@ -124,6 +124,7 @@ class Spider {
         if (isFrontLeg) {
             // PATAS DELANTERAS: Reach-Pull
             if (isSwingPhase) {
+                // REACH: Levantar y extender hacia adelante
                 const reachProgress = phase / Math.PI;
 
                 const reachExtension = strideLength * 0.7;
@@ -137,8 +138,36 @@ class Spider {
 
                 this.solveIK(leg, targetX, targetY - liftHeight);
 
+            } else {
+                // PULL: Encoger para tirar del cuerpo
+                const pullProgress = (phase - Math.PI) / Math.PI;
+
+                const pullAngle = leg.baseAngle + Math.atan2(velY, velX) * 0.15;
+                const pullDist = restDistance + strideLength * 0.7;
+                const contractDist = pullDist - (strideLength * 0.7 * pullProgress);
+
+                const stanceX = this.x + Math.cos(pullAngle) * contractDist;
+                const stanceY = this.y + Math.sin(pullAngle) * contractDist;
+
+                this.solveIK(leg, stanceX, stanceY);
+            }
+
+        } else {
+            // PATAS TRASERAS: Push
+            if (!isSwingPhase) {
+                // PUSH: Plantada, estirar conforme avanza
+                const pushProgress = (phase - Math.PI) / Math.PI;
+
+                const neutralAngle = leg.baseAngle - Math.atan2(velY, velX) * 0.1;
+                const stretchDist = restDistance + (strideLength * 0.4 * pushProgress);
+
+                const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
+                const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
+
+                this.solveIK(leg, pushX, pushY);
 
             } else {
+                // RECOVERY: Volver a posición neutral
                 const recoveryProgress = phase / Math.PI;
 
                 const neutralAngle = leg.baseAngle - Math.atan2(velY, velX) * 0.1;
