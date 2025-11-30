@@ -121,22 +121,27 @@ class SpiderController {
             const trunkTop = this.movement.tree.y + 50;
             const trunkBottom = this.movement.tree.y + this.movement.tree.trunkHeight - 50;
 
-            // Detectar colisión con bordes y cambiar dirección
+            // Detectar colisión con bordes
             let hitEdge = false;
 
             if (newX < trunkLeft || newX > trunkRight) {
-                this.vx *= -1;
                 hitEdge = true;
             }
 
             if (newY < trunkTop || newY > trunkBottom) {
-                this.vy *= -1;
                 hitEdge = true;
             }
 
-            // Si golpeó borde, nueva dirección aleatoria
+            // Si golpeó borde, girar GRADUALMENTE hacia el centro
             if (hitEdge) {
-                this.angle = Math.random() * Math.PI * 2;
+                const centerX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
+                const centerY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
+                const angleToCenter = Math.atan2(centerY - this.spider.y, centerX - this.spider.x);
+
+                // Añadir variación aleatoria ±45° para movimiento natural
+                const randomOffset = (Math.random() - 0.5) * Math.PI / 2;
+                this.angle = angleToCenter + randomOffset;
+
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
             }
@@ -166,8 +171,14 @@ class SpiderController {
             );
 
             if (distToEnd < 20 || Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY) < 20) {
-                // Nueva dirección aleatoria al llegar al borde de la rama
-                this.angle = Math.random() * Math.PI * 2;
+                // Girar suavemente hacia el centro del tronco
+                const centerX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
+                const centerY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
+                const angleToCenter = Math.atan2(centerY - this.spider.y, centerX - this.spider.x);
+
+                const randomOffset = (Math.random() - 0.5) * Math.PI / 3;
+                this.angle = angleToCenter + randomOffset;
+
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
             }
