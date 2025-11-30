@@ -212,11 +212,11 @@ class WebManager {
             }
         }
 
-        // 4. Comprobar TRONCO (incluyendo extremo izquierdo)
+        // 4. Comprobar EXTREMO IZQUIERDO DEL TRONCO (solo un margen de 30px)
         const trunkLeft = this.tree.x;
-        const trunkRight = this.tree.x + this.tree.trunkWidth;
-        if (x >= trunkLeft && x <= trunkRight && y >= 0 && y <= this.tree.trunkHeight) {
-            return { type: 'trunk', point: { x, y } }; // Punto exacto
+        const trunkEdgeMargin = 30; // Solo 30px desde el borde izquierdo
+        if (x >= trunkLeft && x <= (trunkLeft + trunkEdgeMargin) && y >= 0 && y <= this.tree.trunkHeight) {
+            return { type: 'trunk', point: { x, y } }; // Punto exacto en el borde
         }
 
         return null; // No hay superficie válida
