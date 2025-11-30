@@ -98,6 +98,73 @@ class Spider {
             leg.joint2Y = leg.joint1Y + Math.sin(leg.angle2) * leg.segment2Length;
 
             leg.tipX = leg.joint2X + Math.cos(leg.angle3) * leg.segment3Length;
+            leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * leg.segment3Length;
+        });
+    }
+
+    updateWalkingGroups() {
+        if (!this.isWalking) return;
+
+        this.walkCycle += 0.01;
+
+        this.legs.forEach(leg => {
+            this.updateLegNatural(leg);
+        });
+    }
+
+    updateLegNatural(leg) {
+        const restDistance = 55;
+
+        const groupA = [0, 2, 5, 7];
+        const isGroupA = groupA.includes(leg.index);
+        const phaseOffset = isGroupA ? 0 : Math.PI;
+
+        const individualOffset = leg.index * 0.25;
+        const phase = this.walkCycle + phaseOffset + individualOffset;
+
+        const baseAmplitude = 4;
+        const amplitudeVariation = 1 + (leg.index % 3) * 0.3;
+        const oscillation = Math.sin(phase) * baseAmplitude * amplitudeVariation;
+
+        const baseX = this.x + Math.cos(leg.baseAngle) * (restDistance + oscillation);
+        const baseY = this.y + Math.sin(leg.baseAngle) * (restDistance + oscillation);
+
+        leg.targetX = baseX;
+        leg.targetY = baseY;
+
+        const dist = Math.hypot(leg.tipX - leg.targetX, leg.tipY - leg.targetY);
+
+        if (leg.isLifted) {
+            leg.liftProgress += 0.11;
+
+            if (leg.liftProgress >= 1) {
+                leg.isLifted = false;
+                leg.liftProgress = 0;
+            }
+
+            const t = leg.liftProgress;
+            const easeT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+            const currentX = leg.tipX + (leg.targetX - leg.tipX) * easeT;
+            const currentY = leg.tipY + (leg.targetY - leg.tipY) * easeT;
+
+            const liftVariation = 1 + (leg.index % 2) * 0.12;
+            const liftHeight = Math.sin(easeT * Math.PI) * 9 * liftVariation;
+
+            this.solveIK(leg, currentX, currentY - liftHeight);
+
+        } else {
+            if (dist > 20) {
+                leg.isLifted = true;
+                leg.liftProgress = 0;
+            } else if (dist > 1.8) {
+                const adjustSpeed = 0.045 + (leg.index % 3) * 0.012;
+                const adjustX = leg.tipX + (leg.targetX - leg.tipX) * adjustSpeed;
+                const adjustY = leg.tipY + (leg.targetY - leg.tipY) * adjustSpeed;
+                this.solveIK(leg, adjustX, adjustY);
+            } else {
+                this.solveIK(leg, leg.tipX, leg.tipY);
+            }
         }
     }
 
