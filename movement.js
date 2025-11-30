@@ -108,7 +108,66 @@ class SpiderController {
         this.vy = Math.sin(this.angle) * this.speed;
     }
 
+    handleWebConstruction() {
+        if (!this.spider.currentTask) return false;
+
+        const task = this.spider.currentTask;
+
+        // Si la tarea ya está completa, liberar la araña
+        if (task.status === 'complete') {
+            this.spider.currentTask = null;
+            return false;
+        }
+
+        // Moverse hacia el punto inicial de la web
+        const targetX = task.startPoint.x;
+        const targetY = task.startPoint.y;
+        const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
+
+        // Si está lejos, moverse hacia allí
+        if (dist > 15) {
+            const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
+            this.angle = angleToTarget;
+            this.vx = Math.cos(this.angle) * this.speed;
+            this.vy = Math.sin(this.angle) * this.speed;
+
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+            this.spider.velocity = this.vx;
+            this.spider.velocityY = this.vy;
+
+            return true; // Está trabajando en la tarea
+        }
+
+        // Está en posición, aportar silk
+        if (this.spider.silk > 0) {
+            const silkContribution = Math.min(0.5, this.spider.silk); // 0.5 silk por frame
+            this.spider.silk -= silkContribution;
+
+            const completed = task.addSilk(silkContribution);
+
+            if (completed) {
+                this.spider.currentTask = null;
+                return false;
+            }
+        } else {
+            // Sin silk, abandonar tarea
+            this.spider.currentTask = null;
+            return false;
+        }
+
+        return true; // Sigue trabajando
+    }
+
     update() {
+        // Prioridad: si tiene una tarea asignada, trabajar en ella
+        if (this.handleWebConstruction()) {
+            // Constrain to surface mientras construye
+            this.movement.constrainToSurface(this.spider);
+            return;
+        }
+
+        // Movimiento normal si no hay tareas
         const surface = this.movement.getSurfaceAt(this.spider.x, this.spider.y);
 
         if (surface.type === 'trunk') {

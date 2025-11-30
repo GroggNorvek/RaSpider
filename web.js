@@ -129,8 +129,9 @@ class Web {
 
 // Clase para gestionar todas las órdenes y webs
 class WebManager {
-    constructor(tree) {
+    constructor(tree, spiders = []) {
         this.tree = tree;
+        this.spiders = spiders; // Array de arañas disponibles
         this.orders = [];
         this.webs = [];
     }
@@ -138,7 +139,38 @@ class WebManager {
     createOrder(startPoint, endPoint) {
         const order = new WebOrder(startPoint, endPoint);
         this.orders.push(order);
+
+        // Intentar asignar araña inmediatamente
+        this.assignSpiderToOrder(order);
+
         return order;
+    }
+
+    assignSpiderToOrder(order) {
+        // Buscar araña disponible (sin currentTask)
+        let nearestSpider = null;
+        let minDist = Infinity;
+
+        for (const spider of this.spiders) {
+            if (!spider.currentTask && spider.silk > 0) {
+                const dist = Math.hypot(
+                    spider.x - order.startPoint.x,
+                    spider.y - order.startPoint.y
+                );
+
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearestSpider = spider;
+                }
+            }
+        }
+
+        // Asignar la araña más cercana
+        if (nearestSpider) {
+            nearestSpider.currentTask = order;
+            order.assignedSpiders.push(nearestSpider);
+            order.status = 'in_progress';
+        }
     }
 
     completeOrder(order) {
@@ -218,6 +250,13 @@ class WebManager {
     }
 
     update() {
+        // Intentar asignar arañas a órdenes pendientes sin asignar
+        for (const order of this.orders) {
+            if (order.status === 'pending' && order.assignedSpiders.length === 0) {
+                this.assignSpiderToOrder(order);
+            }
+        }
+
         // Comprobar órdenes completadas
         for (let i = this.orders.length - 1; i >= 0; i--) {
             const order = this.orders[i];

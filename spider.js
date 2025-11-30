@@ -19,6 +19,11 @@ class Spider {
         // Rotación DESACTIVADA - cuerpo estático
         this.rotation = 0;
         this.targetRotation = 0;
+
+        // Sistema de recursos - Silk
+        this.silk = 100;
+        this.maxSilk = 100;
+        this.currentTask = null; // WebOrder asignada
     }
 
     initializeLegs() {

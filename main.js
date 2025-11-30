@@ -20,8 +20,8 @@ const spider = new Spider(canvas.width * 0.83, 300);
 const movementSystem = new MovementSystem(tree);
 const controller = new SpiderController(spider, movementSystem);
 
-// Crear sistema de telas de araña
-const webManager = new WebManager(tree);
+// Crear sistema de telas de araña (pasar spider para auto-asignación)
+const webManager = new WebManager(tree, [spider]);
 const inputHandler = new InputHandler(canvas, webManager);
 
 /**
