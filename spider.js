@@ -121,8 +121,8 @@ class Spider {
     updateWalkingGroups() {
         if (!this.isWalking) return;
 
-        // Workers mueven las patas 3x más rápido, Matriarch mitad de velocidad
-        const cycleSpeed = this.type === 'Worker' ? 0.075 : 0.0125;
+        // Workers mueven las patas 3x más rápido, Matriarch velocidad original
+        const cycleSpeed = this.type === 'Worker' ? 0.075 : 0.025;
         this.walkCycle += cycleSpeed;
 
         this.legs.forEach(leg => {
