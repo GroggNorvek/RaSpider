@@ -7,11 +7,23 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+/**
+ * Colony Sim - Nido de Arañas
+ * Loop principal del juego
+ */
+
+// Configuración del canvas
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
 canvas.width = 1200;
 canvas.height = 800;
 
 // Crear árbol en el centro
 const tree = new Tree(canvas.width / 2, 50);
+
+// Crear araña en el tronco
+const spider = new Spider(canvas.width / 2, 300);
 
 /**
  * Loop principal del juego
@@ -24,10 +36,15 @@ function gameLoop() {
     // Dibujar árbol
     tree.draw(ctx);
 
+    // Actualizar y dibujar araña
+    spider.update();
+    spider.draw(ctx);
+
     requestAnimationFrame(gameLoop);
 }
 
 // Iniciar el juego
 console.log('🕷️ Colony Sim iniciado');
 console.log('🌳 Árbol procedural generado con', tree.branches.length, 'ramas');
+console.log('🕷️ Araña vectorial con', spider.legs.length, 'patas articuladas');
 gameLoop();
