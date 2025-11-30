@@ -12,38 +12,5 @@ canvas.height = 800;
 
 // Crear árbol (tercio derecho)
 const tree = new Tree(canvas.width, canvas.height);
-
-// Crear araña en el tronco
-const spider = new Spider(canvas.width * 0.83, 300);
-
-// Crear sistema de movimiento
-const movementSystem = new MovementSystem(tree);
-const spiderController = new SpiderController(spider, movementSystem);
-
-/**
- * Loop principal del juego
- */
-function gameLoop() {
-    // Limpiar canvas (blanco)
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Dibujar árbol
-    tree.draw(ctx);
-
-    // Actualizar controlador de araña
-    spiderController.update();
-
-    // Actualizar y dibujar araña
-    spider.update();
-    spider.draw(ctx);
-
-    requestAnimationFrame(gameLoop);
-}
-
-// Iniciar el juego
-console.log('🕷️ Colony Sim iniciado');
-console.log('🌳 Árbol procedural generado con', tree.branches.length, 'ramas');
-console.log('🕷️ Araña vectorial con', spider.legs.length, 'patas articuladas');
 console.log('🚶 Sistema de movimiento por árbol activado');
 gameLoop();
