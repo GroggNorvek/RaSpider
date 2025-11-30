@@ -31,7 +31,7 @@ class Tree {
     draw(ctx) {
         ctx.fillStyle = '#D3D3D3';
 
-        const branchBaseWidth = 70;
+        const branchMaxWidth = 70;
         const branchTipWidth = 20;
         const branchEndX = this.x + Math.cos(this.branchAngle) * this.branchLength;
         const branchEndY = this.branchY + Math.sin(this.branchAngle) * this.branchLength;
@@ -43,7 +43,7 @@ class Tree {
         // 1. Esquina superior derecha
         ctx.moveTo(this.x + this.trunkWidth, this.y);
 
-        // 2. Borde derecho con ondulación
+        // 2. Borde derecho
         const rightSteps = 25;
         for (let i = 0; i <= rightSteps; i++) {
             const t = i / rightSteps;
@@ -61,25 +61,25 @@ class Tree {
             ctx.lineTo(xPos, this.trunkHeight - curve);
         }
 
-        // 4. Borde izquierdo inferior hasta ANTES de la rama
+        // 4. Borde izquierdo inferior hasta la rama
         const leftLowerSteps = 20;
-        const branchBottomY = this.branchY - branchBaseWidth / 2;
         for (let i = 0; i <= leftLowerSteps; i++) {
             const t = i / leftLowerSteps;
-            const yPos = this.trunkHeight - ((this.trunkHeight - branchBottomY) * t);
+            const yPos = this.trunkHeight - ((this.trunkHeight - this.branchY) * t);
             const curve = Math.sin(t * Math.PI * 3) * 2;
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 5. RAMA COMPLETA - trazado continuo sin saltos
+        // 5. RAMA - lado inferior con crecimiento gradual desde el tronco
         const steps = 50;
-
-        // Lado INFERIOR de la rama
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const baseX = this.x + (branchEndX - this.x) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
-            const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
+
+            // CRECIMIENTO GRADUAL: la rama empieza delgada y crece
+            const growthFactor = Math.min(1, t * 3); // Crece en el primer tercio
+            const width = (branchMaxWidth * growthFactor) + (branchTipWidth - branchMaxWidth * growthFactor) * t;
 
             const wave1 = Math.sin(t * Math.PI * 2.2) * 12 * (1 - t * 0.6);
             const wave2 = Math.sin(t * Math.PI * 1.5 + 0.8) * 8 * (1 - t * 0.4);
@@ -91,7 +91,7 @@ class Tree {
             );
         }
 
-        // Punta
+        // 6. Punta
         ctx.arc(
             branchEndX, branchEndY,
             branchTipWidth / 2,
@@ -100,12 +100,14 @@ class Tree {
             false
         );
 
-        // Lado SUPERIOR de la rama (volviendo)
+        // 7. Lado superior (volviendo)
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
             const baseX = this.x + (branchEndX - this.x) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
-            const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
+
+            const growthFactor = Math.min(1, t * 3);
+            const width = (branchMaxWidth * growthFactor) + (branchTipWidth - branchMaxWidth * growthFactor) * t;
 
             const wave1 = Math.sin(t * Math.PI * 2.2 + Math.PI) * 12 * (1 - t * 0.6);
             const wave2 = Math.sin(t * Math.PI * 1.5 - 0.8) * 8 * (1 - t * 0.4);
@@ -117,17 +119,16 @@ class Tree {
             );
         }
 
-        // 6. Continuar borde izquierdo SUPERIOR del tronco desde la rama hacia arriba
+        // 8. Continuar por el tronco hacia arriba
         const leftUpperSteps = 20;
-        const branchTopY = this.branchY + branchBaseWidth / 2;
         for (let i = 0; i <= leftUpperSteps; i++) {
             const t = i / leftUpperSteps;
-            const yPos = branchTopY - (branchTopY * t);
+            const yPos = this.branchY - (this.branchY * t);
             const curve = Math.sin(t * Math.PI * 3 + Math.PI) * 2;
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 7. Cerrar el path
+        // 9. Cerrar
         ctx.lineTo(this.x, this.y);
         ctx.lineTo(this.x + this.trunkWidth, this.y);
 
