@@ -138,19 +138,6 @@ class SpiderController {
             if (hitEdge) {
                 this.angle = Math.random() * Math.PI * 2;
                 this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-            }
-
-            // Aplicar movimiento
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-
-            // Límites estrictos
-            this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
-            this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
-
-            // Actualizar dirección de movimiento para las patas
-            if (Math.abs(this.vy) > Math.abs(this.vx)) {
                 this.spider.movementDirection = this.vy > 0 ? 1 : -1;
             }
 
