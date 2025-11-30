@@ -44,10 +44,10 @@ class Tree {
 
         // ===== CONTORNO EXTERIOR COMPLETO (orgánico) =====
 
-        // 1. Esquina superior derecha con curva suave
+        // 1. Esquina superior derecha
         ctx.moveTo(this.x + this.trunkWidth, this.y);
 
-        // 2. Borde derecho con ligera ondulación orgánica
+        // 2. Borde derecho con ondulación orgánica
         const rightSteps = 25;
         for (let i = 0; i <= rightSteps; i++) {
             const t = i / rightSteps;
@@ -56,7 +56,7 @@ class Tree {
             ctx.lineTo(this.x + this.trunkWidth + curve, yPos);
         }
 
-        // 3. Base con curva suave
+        // 3. Base con curva
         const baseSteps = 8;
         for (let i = 0; i <= baseSteps; i++) {
             const t = i / baseSteps;
@@ -65,7 +65,7 @@ class Tree {
             ctx.lineTo(xPos, this.trunkHeight - curve);
         }
 
-        // 4. Borde izquierdo inferior con ondulación hasta la rama
+        // 4. Borde izquierdo inferior con ondulación
         const leftLowerSteps = 20;
         const branchBottomY = this.branchY - branchBaseWidth / 2;
         for (let i = 0; i <= leftLowerSteps; i++) {
@@ -75,7 +75,7 @@ class Tree {
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 5. RAMA - lado inferior con curvas orgánicas complejas
+        // 5. RAMA - lado inferior con ONDULACIONES MUY VISIBLES
         const steps = 50;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
@@ -83,14 +83,14 @@ class Tree {
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            // Ondulación orgánica dual que disminuye hacia la punta
-            const wave1 = Math.sin(t * Math.PI * 2.5) * 3 * (1 - t * 0.8);
-            const wave2 = Math.sin(t * Math.PI * 1.3 + 0.5) * 2 * (1 - t);
+            // ONDULACIONES AMPLIAS Y VISIBLES
+            const wave1 = Math.sin(t * Math.PI * 2.2) * 12 * (1 - t * 0.6);
+            const wave2 = Math.sin(t * Math.PI * 1.5 + 0.8) * 8 * (1 - t * 0.4);
             const totalWave = wave1 + wave2;
 
             ctx.lineTo(
-                baseX - perpX * width / 2 + totalWave * perpY * 0.5,
-                baseY - perpY * width / 2 - totalWave * perpX * 0.5
+                baseX - perpX * width / 2 + totalWave * perpY,
+                baseY - perpY * width / 2 - totalWave * perpX
             );
         }
 
@@ -103,25 +103,25 @@ class Tree {
             false
         );
 
-        // 7. RAMA - lado superior con curvas complementarias
+        // 7. RAMA - lado superior con ondulaciones complementarias
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
             const baseX = this.x + (branchEndX - this.x) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            // Ondulación inversa para lado superior
-            const wave1 = Math.sin(t * Math.PI * 2.5 + Math.PI) * 3 * (1 - t * 0.8);
-            const wave2 = Math.sin(t * Math.PI * 1.3 - 0.5) * 2 * (1 - t);
+            // Ondulaciones inversas para el otro lado
+            const wave1 = Math.sin(t * Math.PI * 2.2 + Math.PI) * 12 * (1 - t * 0.6);
+            const wave2 = Math.sin(t * Math.PI * 1.5 - 0.8) * 8 * (1 - t * 0.4);
             const totalWave = wave1 + wave2;
 
             ctx.lineTo(
-                baseX + perpX * width / 2 + totalWave * perpY * 0.5,
-                baseY + perpY * width / 2 - totalWave * perpX * 0.5
+                baseX + perpX * width / 2 + totalWave * perpY,
+                baseY + perpY * width / 2 - totalWave * perpX
             );
         }
 
-        // 8. Borde izquierdo superior con ondulación desde la rama
+        // 8. Borde izquierdo superior con ondulación
         const leftUpperSteps = 20;
         const branchTopY = this.branchY + branchBaseWidth / 2;
         for (let i = 0; i <= leftUpperSteps; i++) {
@@ -131,7 +131,7 @@ class Tree {
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 9. Cerrar con borde superior
+        // 9. Cerrar
         ctx.lineTo(this.x, this.y);
         ctx.lineTo(this.x + this.trunkWidth, this.y);
 
