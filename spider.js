@@ -145,8 +145,13 @@ class Spider {
         const legDirY = Math.sin(rotatedAngle);
 
         const speed = Math.hypot(this.velocity || 0, this.velocityY || 0);
-        const velX = speed > 0 ? (this.velocity || 0) / speed : 0;
-        const velY = speed > 0 ? (this.velocityY || 0) / speed : 1;
+
+        // Umbral mínimo para considerar movimiento (evita glitch con velocidades muy bajas)
+        const speedThreshold = 0.01;
+        const isMoving = speed > speedThreshold;
+
+        const velX = isMoving ? (this.velocity || 0) / speed : legDirX;
+        const velY = isMoving ? (this.velocityY || 0) / speed : legDirY;
 
         const dotProduct = legDirX * velX + legDirY * velY;
         const isFrontLeg = dotProduct > 0;
