@@ -289,7 +289,7 @@ class MatriarchController {
         this.movement = movementSystem;
         this.tree = tree;
 
-        this.speed = 0.25; // Mitad de velocidad
+        this.speed = 0.5; // Velocidad original de Matriarch
         this.angle = Math.random() * Math.PI * 2;
     }
 
