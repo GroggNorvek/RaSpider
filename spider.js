@@ -134,55 +134,101 @@ class Spider {
         const isSwingPhase = phase < Math.PI;
 
         if (isFrontLeg) {
-            // PATAS DELANTERAS: Reach-Pull
+            // PATAS DELANTERAS: Reach-Pull mejorado
             if (isSwingPhase) {
-                const reachProgress = phase / Math.PI;
+                const swingProgress = phase / Math.PI;
 
-                const reachExtension = strideLength * 0.7;
-                const forwardAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
-                const reachDist = restDistance + (reachExtension * reachProgress);
+                // FASE 1 (0-0.4): ENCOGIMIENTO - recoger pata completamente
+                if (swingProgress < 0.4) {
+                    const retractProgress = swingProgress / 0.4;
 
-                const targetX = this.x + Math.cos(forwardAngle) * reachDist;
-                const targetY = this.y + Math.sin(forwardAngle) * reachDist;
+                    // Posición cerca del cuerpo, muy encogida
+                    const retractDist = restDistance * 0.5; // Muy cerca del cuerpo
+                    const retractAngle = rotatedAngle;
 
-                const liftHeight = Math.sin(reachProgress * Math.PI) * 12;
+                    const targetX = this.x + Math.cos(retractAngle) * retractDist;
+                    const targetY = this.y + Math.sin(retractAngle) * retractDist;
 
-                this.solveIK(leg, targetX, targetY - liftHeight);
+                    // Levantar mientras se encoge
+                    const liftHeight = Math.sin(retractProgress * Math.PI) * 15;
+
+                    this.solveIK(leg, targetX, targetY - liftHeight);
+                }
+                // FASE 2 (0.4-1.0): ESTIRAMIENTO Y CLAVADO
+                else {
+                    const reachProgress = (swingProgress - 0.4) / 0.6;
+
+                    // Estirarse completamente hacia adelante
+                    const reachExtension = strideLength * 1.2; // Mucho más estiramiento
+                    const forwardAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
+                    const reachDist = restDistance + (reachExtension * reachProgress);
+
+                    const targetX = this.x + Math.cos(forwardAngle) * reachDist;
+                    const targetY = this.y + Math.sin(forwardAngle) * reachDist;
+
+                    // Bajar para clavarse
+                    const liftHeight = Math.sin((1 - reachProgress) * Math.PI) * 10;
+
+                    this.solveIK(leg, targetX, targetY - liftHeight);
+                }
 
             } else {
+                // ARRASTRE: Pull - arrastrar mientras clavada
                 const pullProgress = (phase - Math.PI) / Math.PI;
 
                 const pullAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
-                const pullDist = restDistance + strideLength * 0.7;
-                const contractDist = pullDist - (strideLength * 0.7 * pullProgress);
+                const pullDist = restDistance + strideLength * 1.2;
+                const contractDist = pullDist - (strideLength * 1.2 * pullProgress);
 
                 const stanceX = this.x + Math.cos(pullAngle) * contractDist;
                 const stanceY = this.y + Math.sin(pullAngle) * contractDist;
 
+                // Clavada al suelo (sin lift)
                 this.solveIK(leg, stanceX, stanceY);
             }
 
         } else {
-            // PATAS TRASERAS: Push
+            // PATAS TRASERAS: Push mejorado
             if (!isSwingPhase) {
                 const pushProgress = (phase - Math.PI) / Math.PI;
 
-                const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
-                const stretchDist = restDistance + (strideLength * 0.4 * pushProgress);
+                // FASE 1 (0-0.6): ESTIRAMIENTO - estirar el último segmento
+                if (pushProgress < 0.6) {
+                    const stretchProgress = pushProgress / 0.6;
 
-                const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
-                const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
+                    const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
+                    // Estirar mucho más el último segmento
+                    const stretchDist = restDistance + (strideLength * 0.8 * stretchProgress);
 
-                this.solveIK(leg, pushX, pushY);
+                    const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
+                    const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
+
+                    this.solveIK(leg, pushX, pushY);
+                }
+                // FASE 2 (0.6-1.0): RETRACCIÓN - empezar a recoger
+                else {
+                    const retractProgress = (pushProgress - 0.6) / 0.4;
+
+                    const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
+                    const maxStretch = restDistance + strideLength * 0.8;
+                    const retractDist = maxStretch - (strideLength * 0.3 * retractProgress);
+
+                    const pushX = this.x + Math.cos(neutralAngle) * retractDist;
+                    const pushY = this.y + Math.sin(neutralAngle) * retractDist;
+
+                    this.solveIK(leg, pushX, pushY);
+                }
 
             } else {
+                // RECOVERY: Levantar y volver a posición
                 const recoveryProgress = phase / Math.PI;
 
                 const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
                 const targetX = this.x + Math.cos(neutralAngle) * restDistance;
                 const targetY = this.y + Math.sin(neutralAngle) * restDistance;
 
-                const liftHeight = Math.sin(recoveryProgress * Math.PI) * 8;
+                // Levantar más durante recovery
+                const liftHeight = Math.sin(recoveryProgress * Math.PI) * 12;
 
                 this.solveIK(leg, targetX, targetY - liftHeight);
             }
