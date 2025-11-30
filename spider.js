@@ -271,7 +271,13 @@ class Spider {
         while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
         while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
 
-        // Interpolar (0.02 = rotación ULTRA suave, sin saltos)
+        // Limitar rotación máxima a 45° para evitar giros de 180°
+        const maxRotation = Math.PI / 4; // 45 grados
+        if (Math.abs(rotDiff) > maxRotation) {
+            rotDiff = Math.sign(rotDiff) * maxRotation;
+        }
+
+        // Interpolar (0.02 = rotación ultra suave)
         this.rotation += rotDiff * 0.02;
 
         this.updateWalkingGroups();
