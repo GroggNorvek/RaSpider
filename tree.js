@@ -30,8 +30,6 @@ class Tree {
 
     draw(ctx) {
         ctx.fillStyle = '#D3D3D3';
-        ctx.strokeStyle = '#A9A9A9';
-        ctx.lineWidth = 2;
 
         const branchBaseWidth = 70;
         const branchTipWidth = 20;
@@ -137,6 +135,6 @@ class Tree {
 
         ctx.closePath();
         ctx.fill();
-        ctx.stroke();
+        // Sin stroke para evitar línea de corte
     }
 }
