@@ -136,7 +136,7 @@ class Tree {
         const sub1BaseX = this.branchStartX + (branchEndX - this.branchStartX) * sub1T;
         const sub1BaseY = this.branchY + (branchEndY - this.branchY) * sub1T;
         const sub1Angle = this.branchAngle - 0.7; // Hacia abajo
-        const sub1Length = 80;
+        const sub1Length = 240;
         const sub1Width = 25;
 
         this.drawSubBranch(ctx, sub1BaseX, sub1BaseY, sub1Angle, sub1Length, sub1Width);
