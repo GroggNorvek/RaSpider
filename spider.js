@@ -45,7 +45,6 @@ class Spider {
     }
 
     solveIK(leg, targetX, targetY) {
-        // Sin rotación del cuerpo
         const rotatedAngle = leg.baseAngle + this.rotation;
 
         const attachX = this.x + Math.cos(rotatedAngle) * this.bodyRadius;
@@ -68,7 +67,6 @@ class Spider {
         const cosAngle1 = (l1 * l1 + finalDist * finalDist - l2 * l2) / (2 * l1 * finalDist);
         const bendAngle1 = Math.acos(Math.max(-1, Math.min(1, cosAngle1)));
 
-        // Invertir dirección de doblado para pata 3 (abajo-derecha)
         let bendDirection = leg.baseAngle > 0 ? -1 : 1;
         if (leg.index === 3) {
             bendDirection *= -1;
@@ -119,7 +117,6 @@ class Spider {
         const restDistance = 55;
         const strideLength = 18;
 
-        // Detección 2D con producto punto (sin rotación del cuerpo)
         const rotatedAngle = leg.baseAngle + this.rotation;
         const legDirX = Math.cos(rotatedAngle);
         const legDirY = Math.sin(rotatedAngle);
@@ -134,42 +131,54 @@ class Spider {
         const isSwingPhase = phase < Math.PI;
 
         if (isFrontLeg) {
-            // PATAS DELANTERAS: Reach-Pull mejorado
+            // PATAS DELANTERAS: Swing con arco natural
             if (isSwingPhase) {
                 const swingProgress = phase / Math.PI;
 
-                // FASE 1 (0-0.4): ENCOGIMIENTO - recoger pata completamente
-                if (swingProgress < 0.4) {
-                    const retractProgress = swingProgress / 0.4;
+                // FASE 1 (0-0.3): LEVANTAR y RECOGER
+                if (swingProgress < 0.3) {
+                    const liftProgress = swingProgress / 0.3;
 
-                    // Posición cerca del cuerpo, muy encogida
-                    const retractDist = restDistance * 0.5; // Muy cerca del cuerpo
+                    const retractDist = restDistance * (1 - 0.5 * liftProgress);
                     const retractAngle = rotatedAngle;
 
                     const targetX = this.x + Math.cos(retractAngle) * retractDist;
                     const targetY = this.y + Math.sin(retractAngle) * retractDist;
 
-                    // Levantar mientras se encoge
-                    const liftHeight = Math.sin(retractProgress * Math.PI) * 15;
+                    const liftHeight = Math.sin(liftProgress * Math.PI * 0.5) * 18;
 
                     this.solveIK(leg, targetX, targetY - liftHeight);
                 }
-                // FASE 2 (0.4-1.0): ESTIRAMIENTO Y CLAVADO
-                else {
-                    const reachProgress = (swingProgress - 0.4) / 0.6;
+                // FASE 2 (0.3-0.7): ARCO HACIA ADELANTE - movimiento suave en arco
+                else if (swingProgress < 0.7) {
+                    const arcProgress = (swingProgress - 0.3) / 0.4;
 
-                    // Estirarse completamente hacia adelante
-                    const reachExtension = strideLength * 1.2; // Mucho más estiramiento
+                    const startDist = restDistance * 0.5;
+                    const endDist = restDistance + strideLength * 1.2;
+                    const currentDist = startDist + (endDist - startDist) * arcProgress;
+
                     const forwardAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
-                    const reachDist = restDistance + (reachExtension * reachProgress);
+
+                    const targetX = this.x + Math.cos(forwardAngle) * currentDist;
+                    const targetY = this.y + Math.sin(forwardAngle) * currentDist;
+
+                    const arcHeight = Math.sin(arcProgress * Math.PI) * 15;
+
+                    this.solveIK(leg, targetX, targetY - arcHeight);
+                }
+                // FASE 3 (0.7-1.0): BAJAR Y CLAVAR
+                else {
+                    const plantProgress = (swingProgress - 0.7) / 0.3;
+
+                    const forwardAngle = rotatedAngle + Math.atan2(velY, velX) * 0.15;
+                    const reachDist = restDistance + strideLength * 1.2;
 
                     const targetX = this.x + Math.cos(forwardAngle) * reachDist;
                     const targetY = this.y + Math.sin(forwardAngle) * reachDist;
 
-                    // Bajar para clavarse
-                    const liftHeight = Math.sin((1 - reachProgress) * Math.PI) * 10;
+                    const descendHeight = (1 - plantProgress) * 8;
 
-                    this.solveIK(leg, targetX, targetY - liftHeight);
+                    this.solveIK(leg, targetX, targetY - descendHeight);
                 }
 
             } else {
@@ -183,30 +192,25 @@ class Spider {
                 const stanceX = this.x + Math.cos(pullAngle) * contractDist;
                 const stanceY = this.y + Math.sin(pullAngle) * contractDist;
 
-                // Clavada al suelo (sin lift)
                 this.solveIK(leg, stanceX, stanceY);
             }
 
         } else {
-            // PATAS TRASERAS: Push mejorado
+            // PATAS TRASERAS: Push con extensión gradual
             if (!isSwingPhase) {
                 const pushProgress = (phase - Math.PI) / Math.PI;
 
-                // FASE 1 (0-0.6): ESTIRAMIENTO - estirar el último segmento
                 if (pushProgress < 0.6) {
                     const stretchProgress = pushProgress / 0.6;
 
                     const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
-                    // Estirar mucho más el último segmento
                     const stretchDist = restDistance + (strideLength * 0.8 * stretchProgress);
 
                     const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
                     const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
 
                     this.solveIK(leg, pushX, pushY);
-                }
-                // FASE 2 (0.6-1.0): RETRACCIÓN - empezar a recoger
-                else {
+                } else {
                     const retractProgress = (pushProgress - 0.6) / 0.4;
 
                     const neutralAngle = rotatedAngle - Math.atan2(velY, velX) * 0.1;
@@ -227,7 +231,6 @@ class Spider {
                 const targetX = this.x + Math.cos(neutralAngle) * restDistance;
                 const targetY = this.y + Math.sin(neutralAngle) * restDistance;
 
-                // Levantar más durante recovery
                 const liftHeight = Math.sin(recoveryProgress * Math.PI) * 12;
 
                 this.solveIK(leg, targetX, targetY - liftHeight);
@@ -304,9 +307,6 @@ class Spider {
     }
 
     update() {
-        // ROTACIÓN DESACTIVADA - Enfoque en movimiento de patas estilo Factorio
-        // this.rotation permanece en 0
-
         this.updateWalkingGroups();
     }
 
