@@ -31,7 +31,7 @@ class Tree {
             const baseAngle = Math.PI + (Math.random() * 0.4 - 0.2);
 
             const mainBranch = {
-                startX: this.x,
+                startX: this.x - 10, // Comienza ligeramente dentro del tronco
                 startY: yPos,
                 length: mainLength,
                 baseAngle: baseAngle,
@@ -212,6 +212,24 @@ class Tree {
         ctx.strokeStyle = '#909090';
         ctx.lineWidth = 2;
         ctx.stroke();
+
+        // Añadir conexión suave al tronco si es rama principal
+        if (branch.cp2X !== undefined && branch.startX < this.x) {
+            // Dibujar óvalo de conexión para integrar rama con tronco
+            ctx.fillStyle = '#C8C8C8'; // Color intermedio entre tronco y rama
+            ctx.beginPath();
+            ctx.ellipse(
+                branch.startX + 15, branch.startY,
+                25, startThickness * 0.4,
+                branch.baseAngle, 0, Math.PI * 2
+            );
+            ctx.fill();
+
+            // Borde de integración
+            ctx.strokeStyle = '#A0A0A0';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
     }
 
     draw(ctx) {
