@@ -89,7 +89,8 @@ class Spider {
     updateWalkingGroups() {
         if (!this.isWalking) return;
 
-        this.walkCycle += 0.012;
+        // Patas más rápidas
+        this.walkCycle += 0.025;
 
         this.legs.forEach(leg => {
             this.updateLegDirectional(leg);

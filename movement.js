@@ -98,51 +98,81 @@ class SpiderController {
     constructor(spider, movementSystem) {
         this.spider = spider;
         this.movement = movementSystem;
-        this.direction = 1;
-        this.speed = 0.5;
-        this.walkTimer = 0;
-        this.walkDuration = 200;
+
+        // Movimiento más lento
+        this.speed = 0.3;
+
+        // Dirección 2D aleatoria
+        this.angle = Math.random() * Math.PI * 2;
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
     }
 
     update() {
-        this.walkTimer++;
-
-        if (this.walkTimer >= this.walkDuration) {
-            this.direction *= -1;
-            this.walkTimer = 0;
-            this.walkDuration = Math.random() * 150 + 100;
-        }
-
         const surface = this.movement.getSurfaceAt(this.spider.x, this.spider.y);
 
         if (surface.type === 'trunk') {
-            this.spider.y += this.speed * this.direction;
+            // Intentar moverse en la dirección actual
+            const newX = this.spider.x + this.vx;
+            const newY = this.spider.y + this.vy;
 
+            const trunkLeft = this.movement.tree.x + 30;
+            const trunkRight = this.movement.tree.x + this.movement.tree.trunkWidth - 30;
             const trunkTop = this.movement.tree.y + 50;
             const trunkBottom = this.movement.tree.y + this.movement.tree.trunkHeight - 50;
 
-            if (this.spider.y < trunkTop) {
-                this.spider.y = trunkTop;
-                this.direction = 1;
+            // Detectar colisión con bordes y cambiar dirección
+            let hitEdge = false;
+
+            if (newX < trunkLeft || newX > trunkRight) {
+                this.vx *= -1; // Invertir horizontal
+                hitEdge = true;
             }
-            if (this.spider.y > trunkBottom) {
-                this.spider.y = trunkBottom;
-                this.direction = -1;
+
+            if (newY < trunkTop || newY > trunkBottom) {
+                this.vy *= -1; // Invertir vertical
+                hitEdge = true;
             }
+
+            // Si golpeó borde, nueva dirección aleatoria
+            if (hitEdge) {
+                this.angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+            }
+
+            // Aplicar movimiento
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+
+            // Límites estrictos
+            this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
+            this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
+
+            // Actualizar dirección de movimiento para las patas
+            if (Math.abs(this.vy) > Math.abs(this.vx)) {
+                this.spider.movementDirection = this.vy > 0 ? 1 : -1;
+            }
+
         } else if (surface.type === 'branch') {
             const branch = surface.branch;
             const angle = branch.angle;
 
-            this.spider.x += Math.cos(angle) * this.speed * this.direction;
-            this.spider.y += Math.sin(angle) * this.speed * this.direction;
+            this.spider.x += Math.cos(angle) * this.speed;
+            this.spider.y += Math.sin(angle) * this.speed;
 
             const distToEnd = Math.hypot(
                 this.spider.x - (branch.startX + Math.cos(angle) * branch.length),
                 this.spider.y - (branch.startY + Math.sin(angle) * branch.length)
             );
 
-            if (distToEnd < 20 || Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY) < 20) {
-                this.direction *= -1;
+            if (distTo
+
+End < 20 || Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY) < 20) {
+                // Nueva dirección aleatoria al llegar al borde de la rama
+                this.angle = Math.random() * Math.PI * 2;
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
             }
         }
 
