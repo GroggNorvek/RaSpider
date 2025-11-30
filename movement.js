@@ -166,9 +166,7 @@ class SpiderController {
                 this.spider.y - (branch.startY + Math.sin(angle) * branch.length)
             );
 
-            if (distTo
-
-End < 20 || Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY) < 20) {
+            if (distToEnd < 20 || Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY) < 20) {
                 // Nueva dirección aleatoria al llegar al borde de la rama
                 this.angle = Math.random() * Math.PI * 2;
                 this.vx = Math.cos(this.angle) * this.speed;
