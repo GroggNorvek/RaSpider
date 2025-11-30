@@ -14,7 +14,7 @@ class Tree {
         this.y = 0;
 
         this.branchY = 200;
-        this.branchLength = 950;
+        this.branchLength = (canvasWidth * (2/3) + 40) / Math.abs(Math.cos(Math.PI + 0.1)) - 30;
         this.branchAngle = Math.PI + 0.1;
         this.branchStartX = this.x + 40; // Empieza 40px dentro del tronco
 
