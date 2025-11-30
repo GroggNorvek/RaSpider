@@ -271,8 +271,8 @@ class Spider {
         while (rotDiff > Math.PI) rotDiff -= Math.PI * 2;
         while (rotDiff < -Math.PI) rotDiff += Math.PI * 2;
 
-        // Interpolar (0.05 = rotación MUY suave)
-        this.rotation += rotDiff * 0.05;
+        // Interpolar (0.02 = rotación ULTRA suave, sin saltos)
+        this.rotation += rotDiff * 0.02;
 
         this.updateWalkingGroups();
     }
