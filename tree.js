@@ -1,6 +1,6 @@
 /**
  * Tree - Árbol con rama única integrada
- * Una sola forma vectorial unificada
+ * Una sola forma vectorial - contorno exterior completo
  */
 
 class Tree {
@@ -8,18 +8,15 @@ class Tree {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
 
-        // Tronco ocupa el tercio derecho
         this.trunkWidth = canvasWidth / 3;
         this.trunkHeight = canvasHeight;
         this.x = canvasWidth * (2 / 3);
         this.y = 0;
 
-        // Rama única larga
         this.branchY = 200;
         this.branchLength = 950;
         this.branchAngle = Math.PI + 0.1;
 
-        // Generar lista de branches para collision
         this.branches = [{
             startX: this.x,
             startY: this.branchY,
@@ -32,7 +29,6 @@ class Tree {
     }
 
     draw(ctx) {
-        // UNA ÚNICA FORMA VECTORIAL: Tronco + Rama
         ctx.fillStyle = '#D3D3D3';
         ctx.strokeStyle = '#A9A9A9';
         ctx.lineWidth = 2;
@@ -44,28 +40,34 @@ class Tree {
         const perpX = -Math.sin(this.branchAngle);
         const perpY = Math.cos(this.branchAngle);
 
+        // Puntos clave de la rama
+        const branchTopBase = {
+            x: this.x + perpX * branchBaseWidth / 2,
+            y: this.branchY + perpY * branchBaseWidth / 2
+        };
+        const branchBottomBase = {
+            x: this.x - perpX * branchBaseWidth / 2,
+            y: this.branchY - perpY * branchBaseWidth / 2
+        };
+
         ctx.beginPath();
 
-        // ===== CONTORNO COMPLETO EN SENTIDO HORARIO =====
+        // ===== CONTORNO EXTERIOR COMPLETO (sentido horario) =====
 
-        // 1. Esquina superior derecha del tronco
+        // 1. Empezar en esquina superior derecha
         ctx.moveTo(this.x + this.trunkWidth, this.y);
 
-        // 2. Borde derecho del tronco (bajando)
+        // 2. Bajar por borde derecho del tronco
         ctx.lineTo(this.x + this.trunkWidth, this.trunkHeight);
 
         // 3. Base del tronco (de derecha a izquierda)
         ctx.lineTo(this.x, this.trunkHeight);
 
-        // 4. Borde izquierdo del tronco inferior (subiendo hasta la rama)
-        const steps = 40;
-        for (let i = steps; i >= 0; i--) {
-            const t = i / steps;
-            const yPos = this.branchY + (this.trunkHeight - this.branchY) * t;
-            ctx.lineTo(this.x, yPos);
-        }
+        // 4. Subir por borde izquierdo hasta donde sale la rama (parte inferior)
+        ctx.lineTo(this.x, branchBottomBase.y);
 
-        // 5. RAMA - Contorno inferior (de la base a la punta)
+        // 5. RAMA - lado inferior (de base a punta)
+        const steps = 40;
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const x = this.x + (branchEndX - this.x) * t;
@@ -75,7 +77,7 @@ class Tree {
             ctx.lineTo(x - perpX * width / 2, y - perpY * width / 2);
         }
 
-        // 6. Punta redondeada de la rama
+        // 6. Rodear punta de la rama
         ctx.arc(
             branchEndX, branchEndY,
             branchTipWidth / 2,
@@ -84,7 +86,7 @@ class Tree {
             false
         );
 
-        // 7. RAMA - Contorno superior (de la punta a la base)
+        // 7. RAMA - lado superior (de punta a base)
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
             const x = this.x + (branchEndX - this.x) * t;
@@ -94,13 +96,11 @@ class Tree {
             ctx.lineTo(x + perpX * width / 2, y + perpY * width / 2);
         }
 
-        // 8. Borde izquierdo del tronco superior (bajando desde la rama hasta arriba)
-        for (let i = this.branchY; i >= 0; i -= 10) {
-            ctx.lineTo(this.x, i);
-        }
-
-        // 9. Completar - borde superior del tronco
+        // 8. Continuar subiendo por borde izquierdo del tronco (desde rama hasta arriba)
         ctx.lineTo(this.x, this.y);
+
+        // 9. Cerrar recorriendo borde superior
+        ctx.lineTo(this.x + this.trunkWidth, this.y);
 
         ctx.closePath();
         ctx.fill();
