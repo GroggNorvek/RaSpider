@@ -1,5 +1,5 @@
 /**
- * Spider - Ciclo de marcha realista con swing/stance
+ * Spider - Reach-Pull/Push direccional
  */
 
 class Spider {
@@ -13,6 +13,7 @@ class Spider {
 
         this.walkCycle = 0;
         this.isWalking = true;
+        this.movementDirection = 1; // 1 = abajo, -1 = arriba
     }
 
     initializeLegs() {
@@ -33,12 +34,7 @@ class Spider {
                 joint2X: 0,
                 joint2Y: 0,
                 tipX: 0,
-                tipY: 0,
-                inSwing: false,
-                swingStartX: 0,
-                swingStartY: 0,
-                stanceX: 0,
-                stanceY: 0
+                tipY: 0
             });
         }
     }
@@ -86,6 +82,100 @@ class Spider {
         leg.angle3 = Math.atan2(targetY - leg.joint2Y, targetX - leg.joint2X);
         leg.angle3 += bendDirection * 0.1;
 
+        leg.tipX = leg.joint2X + Math.cos(leg.angle3) * l3;
+        leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * l3;
+    }
+
+    updateWalkingGroups() {
+        if (!this.isWalking) return;
+
+        this.walkCycle += 0.012;
+
+        this.legs.forEach(leg => {
+            this.updateLegDirectional(leg);
+        });
+    }
+
+    updateLegDirectional(leg) {
+        const groupA = [0, 2, 5, 7];
+        const isGroupA = groupA.includes(leg.index);
+        const phaseOffset = isGroupA ? 0 : Math.PI;
+        const individualOffset = leg.index * 0.15;
+        const phase = (this.walkCycle + phaseOffset + individualOffset) % (Math.PI * 2);
+
+        const restDistance = 55;
+        const strideLength = 18;
+
+        // Determinar si pata está delante o detrás
+        const legAngle = leg.baseAngle;
+        const isUpperLeg = (legAngle > -Math.PI * 0.75 && legAngle < -Math.PI * 0.25);
+        const isFrontLeg = this.movementDirection < 0 ? isUpperLeg : !isUpperLeg;
+
+        const isSwingPhase = phase < Math.PI;
+
+        if (isFrontLeg) {
+            // PATAS DELANTERAS: Reach-Pull
+            if (isSwingPhase) {
+                // REACH: Levantar y extender
+                const reachProgress = phase / Math.PI;
+
+                const reachExtension = strideLength * 0.7;
+                const forwardAngle = leg.baseAngle - (this.movementDirection * reachExtension * 0.02);
+                const reachDist = restDistance + (reachExtension * reachProgress);
+
+                const targetX = this.x + Math.cos(forwardAngle) * reachDist;
+                const targetY = this.y + Math.sin(forwardAngle) * reachDist;
+
+                const liftHeight = Math.sin(reachProgress * Math.PI) * 12;
+
+                this.solveIK(leg, targetX, targetY - liftHeight);
+
+            } else {
+                // PULL: Encoger para tirar
+                const pullProgress = (phase - Math.PI) / Math.PI;
+
+                const pullAngle = leg.baseAngle - (this.movementDirection * strideLength * 0.7 * 0.02);
+                const pullDist = restDistance + strideLength * 0.7;
+                const contractDist = pullDist - (strideLength * 0.7 * pullProgress);
+
+                const stanceX = this.x + Math.cos(pullAngle) * contractDist;
+                const stanceY = this.y + Math.sin(pullAngle) * contractDist;
+
+                this.solveIK(leg, stanceX, stanceY);
+            }
+
+        } else {
+            // PATAS TRASERAS: Push
+            if (!isSwingPhase) {
+                // PUSH: Plantada, estirar
+                const pushProgress = (phase - Math.PI) / Math.PI;
+
+                const neutral Angle = leg.baseAngle + (this.movementDirection * strideLength * 0.3 * 0.02);
+                const stretchDist = restDistance + (strideLength * 0.4 * pushProgress);
+
+                const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
+                const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
+
+                this.solveIK(leg, pushX, pushY);
+
+            } else {
+                // RECOVERY: Volver a neutral
+                const recoveryProgress = phase / Math.PI;
+
+                const neutralAngle = leg.baseAngle + (this.movementDirection * strideLength * 0.3 * 0.02);
+                const targetX = this.x + Math.cos(neutralAngle) * restDistance;
+                const targetY = this.y + Math.sin(neutralAngle) * restDistance;
+
+                const liftHeight = Math.sin(recoveryProgress * Math.PI) * 8;
+
+                this.solveIK(leg, targetX, targetY - liftHeight);
+            }
+        }
+    }
+
+    drawLeg(ctx, leg) {
+        const attachX = this.x + Math.cos(leg.baseAngle) * this.bodyRadius;
+        const attachY = this.y + Math.sin(leg.baseAngle) * this.bodyRadius;
 
         ctx.strokeStyle = '#2a2a2a';
         ctx.lineWidth = 1.5;
