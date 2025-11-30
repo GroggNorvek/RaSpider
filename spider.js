@@ -137,31 +137,6 @@ class Spider {
 
                 this.solveIK(leg, targetX, targetY - liftHeight);
 
-            } else {
-                const pullProgress = (phase - Math.PI) / Math.PI;
-
-                const pullAngle = leg.baseAngle + Math.atan2(velY, velX) * 0.15;
-                const pullDist = restDistance + strideLength * 0.7;
-                const contractDist = pullDist - (strideLength * 0.7 * pullProgress);
-
-                const stanceX = this.x + Math.cos(pullAngle) * contractDist;
-                const stanceY = this.y + Math.cos(pullAngle) * contractDist;
-
-                this.solveIK(leg, stanceX, stanceY);
-            }
-
-        } else {
-            // PATAS TRASERAS: Push
-            if (!isSwingPhase) {
-                const pushProgress = (phase - Math.PI) / Math.PI;
-
-                const neutralAngle = leg.baseAngle - Math.atan2(vel Y, velX) * 0.1;
-                const stretchDist = restDistance + (strideLength * 0.4 * pushProgress);
-
-                const pushX = this.x + Math.cos(neutralAngle) * stretchDist;
-                const pushY = this.y + Math.sin(neutralAngle) * stretchDist;
-
-                this.solveIK(leg, pushX, pushY);
 
             } else {
                 const recoveryProgress = phase / Math.PI;
