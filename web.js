@@ -187,67 +187,67 @@ class WebManager {
     }
 
     findSurfaceAt(x, y) {
-        // Comprobar webs existentes primero
-        for (const web of this.webs) {
-            if (web.isNear(x, y, 15)) {
-                const point = web.getClosestPoint(x, y);
-                return { type: 'web', web, point };
+        const threshold = 15; // Radio de detección
+
+        // 1. Comprobar ÓRDENES PENDIENTES (WebOrder)
+        for (const order of this.orders) {
+            // Verificar si el click está cerca de la línea de la orden
+            const dist = this.distanceToLine(x, y, order.startPoint, order.endPoint);
+            if (dist < threshold) {
+                return { type: 'order', order, point: { x, y } }; // Punto exacto
             }
         }
 
-        // Comprobar tronco
+        // 2. Comprobar WEBS CONSTRUIDAS
+        for (const web of this.webs) {
+            if (web.isNear(x, y, threshold)) {
+                return { type: 'web', web, point: { x, y } }; // Punto exacto
+            }
+        }
+
+        // 3. Comprobar TODAS LAS RAMAS Y SUB-RAMAS
+        for (const branch of this.tree.branches) {
+            if (this.isOnBranch(x, y, branch, threshold)) {
+                return { type: 'branch', branch, point: { x, y } }; // Punto exacto
+            }
+        }
+
+        // 4. Comprobar TRONCO (incluyendo extremo izquierdo)
         const trunkLeft = this.tree.x;
         const trunkRight = this.tree.x + this.tree.trunkWidth;
         if (x >= trunkLeft && x <= trunkRight && y >= 0 && y <= this.tree.trunkHeight) {
-            return { type: 'trunk', point: { x, y } };
-        }
-
-        // Comprobar rama principal
-        const mainBranch = this.tree.branches[0];
-        if (this.isOnBranch(x, y, mainBranch)) {
-            const point = this.clampToBranch(x, y, mainBranch);
-            return { type: 'branch', branch: mainBranch, point };
+            return { type: 'trunk', point: { x, y } }; // Punto exacto
         }
 
         return null; // No hay superficie válida
     }
 
-    isOnBranch(x, y, branch) {
-        const endX = branch.startX + Math.cos(branch.angle) * branch.length;
-        const endY = branch.startY + Math.sin(branch.angle) * branch.length;
-
-        const dx = endX - branch.startX;
-        const dy = endY - branch.startY;
+    // Nueva función helper para calcular distancia a una línea
+    distanceToLine(x, y, start, end) {
+        const dx = end.x - start.x;
+        const dy = end.y - start.y;
         const length = Math.hypot(dx, dy);
 
-        const t = Math.max(0, Math.min(1,
-            ((x - branch.startX) * dx + (y - branch.startY) * dy) / (length * length)
-        ));
-
-        const projX = branch.startX + t * dx;
-        const projY = branch.startY + t * dy;
-
-        const dist = Math.hypot(x - projX, y - projY);
-        return dist < branch.thickness / 2;
-    }
-
-    clampToBranch(x, y, branch) {
-        const endX = branch.startX + Math.cos(branch.angle) * branch.length;
-        const endY = branch.startY + Math.sin(branch.angle) * branch.length;
-
-        const dx = endX - branch.startX;
-        const dy = endY - branch.startY;
-        const length = Math.hypot(dx, dy);
+        if (length === 0) return Math.hypot(x - start.x, y - start.y);
 
         const t = Math.max(0, Math.min(1,
-            ((x - branch.startX) * dx + (y - branch.startY) * dy) / (length * length)
+            ((x - start.x) * dx + (y - start.y) * dy) / (length * length)
         ));
 
-        return {
-            x: branch.startX + t * dx,
-            y: branch.startY + t * dy
-        };
+        const projX = start.x + t * dx;
+        const projY = start.y + t * dy;
+
+        return Math.hypot(x - projX, y - projY);
     }
+
+    isOnBranch(x, y, branch, threshold = 15) {
+        const dist = this.distanceToLine(x, y,
+            { x: branch.startX, y: branch.startY },
+            { x: branch.endX, y: branch.endY }
+        );
+        return dist < threshold;
+    }
+
 
     update() {
         // Intentar asignar arañas a órdenes pendientes sin asignar

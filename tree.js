@@ -18,15 +18,53 @@ class Tree {
         this.branchAngle = Math.PI + 0.1;
         this.branchStartX = this.x + 40;
 
+        const branchEndX = this.branchStartX + Math.cos(this.branchAngle) * this.branchLength;
+        const branchEndY = this.branchY + Math.sin(this.branchAngle) * this.branchLength;
+
+        // Rama principal
         this.branches = [{
             startX: this.branchStartX,
             startY: this.branchY,
-            endX: this.branchStartX + Math.cos(this.branchAngle) * this.branchLength,
-            endY: this.branchY + Math.sin(this.branchAngle) * this.branchLength,
+            endX: branchEndX,
+            endY: branchEndY,
             angle: this.branchAngle,
             length: this.branchLength,
             thickness: 70
         }];
+
+        // Sub-rama 1: Diagonal hacia ABAJO (30% a lo largo de la rama principal)
+        const sub1T = 0.3;
+        const sub1BaseX = this.branchStartX + (branchEndX - this.branchStartX) * sub1T;
+        const sub1BaseY = this.branchY + (branchEndY - this.branchY) * sub1T;
+        const sub1Angle = this.branchAngle - 0.7;
+        const sub1Length = 240;
+
+        this.branches.push({
+            startX: sub1BaseX,
+            startY: sub1BaseY,
+            endX: sub1BaseX + Math.cos(sub1Angle) * sub1Length,
+            endY: sub1BaseY + Math.sin(sub1Angle) * sub1Length,
+            angle: sub1Angle,
+            length: sub1Length,
+            thickness: 25
+        });
+
+        // Sub-rama 2: Diagonal hacia ARRIBA (60% a lo largo de la rama principal)
+        const sub2T = 0.6;
+        const sub2BaseX = this.branchStartX + (branchEndX - this.branchStartX) * sub2T;
+        const sub2BaseY = this.branchY + (branchEndY - this.branchY) * sub2T;
+        const sub2Angle = this.branchAngle + 0.6;
+        const sub2Length = 70;
+
+        this.branches.push({
+            startX: sub2BaseX,
+            startY: sub2BaseY,
+            endX: sub2BaseX + Math.cos(sub2Angle) * sub2Length,
+            endY: sub2BaseY + Math.sin(sub2Angle) * sub2Length,
+            angle: sub2Angle,
+            length: sub2Length,
+            thickness: 20
+        });
     }
 
     draw(ctx) {
