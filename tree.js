@@ -115,29 +115,102 @@ class Tree {
     }
 
     drawBranch(ctx, branch) {
-        ctx.strokeStyle = '#B0B0B0';
-        ctx.lineWidth = branch.thickness;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
+        // Dibujar rama como forma cerrada orgánica (no solo línea)
+        // La rama se adelgaza del inicio al final naturalmente
 
-        ctx.beginPath();
-        ctx.moveTo(branch.startX, branch.startY);
+        const startThickness = branch.thickness;
+        const endThickness = branch.thickness * 0.3; // Se adelgaza al 30% al final
 
-        if (branch.cp2X !== undefined) {
-            // Rama principal con curva Bézier cúbica
-            ctx.bezierCurveTo(
-                branch.cp1X, branch.cp1Y,
-                branch.cp2X, branch.cp2Y,
-                branch.endX, branch.endY
-            );
-        } else {
-            // Sub-rama con curva Bézier cuadrática
-            ctx.quadraticCurveTo(
-                branch.cp1X, branch.cp1Y,
-                branch.endX, branch.endY
-            );
+        // Calcular puntos del contorno superior e inferior
+        const points = [];
+        const steps = 30;
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+
+            // Interpolar espesor (más grueso al inicio, más delgado al final)
+            const currentThickness = startThickness + (endThickness - startThickness) * t;
+
+            // Posición en la curva Bézier
+            let x, y;
+            if (branch.cp2X !== undefined) {
+                // Bézier cúbica
+                const t1 = 1 - t;
+                x = t1 * t1 * t1 * branch.startX +
+                    3 * t1 * t1 * t * branch.cp1X +
+                    3 * t1 * t * t * branch.cp2X +
+                    t * t * t * branch.endX;
+                y = t1 * t1 * t1 * branch.startY +
+                    3 * t1 * t1 * t * branch.cp1Y +
+                    3 * t1 * t * t * branch.cp2Y +
+                    t * t * t * branch.endY;
+            } else {
+                // Bézier cuadrática
+                const t1 = 1 - t;
+                x = t1 * t1 * branch.startX +
+                    2 * t1 * t * branch.cp1X +
+                    t * t * branch.endX;
+                y = t1 * t1 * branch.startY +
+                    2 * t1 * t * branch.cp1Y +
+                    t * t * branch.endY;
+            }
+
+            // Calcular normal (perpendicular a la tangente)
+            let dx, dy;
+            if (branch.cp2X !== undefined) {
+                const t1 = 1 - t;
+                dx = 3 * t1 * t1 * (branch.cp1X - branch.startX) +
+                    6 * t1 * t * (branch.cp2X - branch.cp1X) +
+                    3 * t * t * (branch.endX - branch.cp2X);
+                dy = 3 * t1 * t1 * (branch.cp1Y - branch.startY) +
+                    6 * t1 * t * (branch.cp2Y - branch.cp1Y) +
+                    3 * t * t * (branch.endY - branch.cp2Y);
+            } else {
+                const t1 = 1 - t;
+                dx = 2 * t1 * (branch.cp1X - branch.startX) +
+                    2 * t * (branch.endX - branch.cp1X);
+                dy = 2 * t1 * (branch.cp1Y - branch.startY) +
+                    2 * t * (branch.endY - branch.cp1Y);
+            }
+
+            const len = Math.sqrt(dx * dx + dy * dy);
+            if (len > 0) {
+                dx /= len;
+                dy /= len;
+            }
+
+            // Normal perpendicular (rotar 90°)
+            const nx = -dy;
+            const ny = dx;
+
+            // Punto superior e inferior
+            points.push({
+                top: { x: x + nx * currentThickness / 2, y: y + ny * currentThickness / 2 },
+                bottom: { x: x - nx * currentThickness / 2, y: y - ny * currentThickness / 2 }
+            });
         }
 
+        // Dibujar forma cerrada
+        ctx.fillStyle = '#B8956A';
+        ctx.beginPath();
+
+        // Contorno superior
+        ctx.moveTo(points[0].top.x, points[0].top.y);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i].top.x, points[i].top.y);
+        }
+
+        // Contorno inferior (en reversa)
+        for (let i = points.length - 1; i >= 0; i--) {
+            ctx.lineTo(points[i].bottom.x, points[i].bottom.y);
+        }
+
+        ctx.closePath();
+        ctx.fill();
+
+        // Borde sutil para definir mejor la forma
+        ctx.strokeStyle = '#8B6F47';
+        ctx.lineWidth = 2;
         ctx.stroke();
     }
 
