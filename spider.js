@@ -25,10 +25,16 @@ class Spider {
         this.rotation = 0;
         this.targetRotation = 0;
 
-        // Sistema de recursos - Silk
-        this.silk = 100;
-        this.maxS = 100;
-        this.currentTask = null; // WebOrder asignada
+        // Sistema de recursos - Silk (solo Workers pueden construir telas)
+        if (type === 'Worker') {
+            this.silk = 100;
+            this.maxSilk = 100;
+            this.currentTask = null; // WebOrder asignada
+        } else {
+            this.silk = 0;
+            this.maxSilk = 0;
+            this.currentTask = null;
+        }
     }
 
     initializeLegs() {

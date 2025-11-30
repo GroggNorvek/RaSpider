@@ -147,12 +147,13 @@ class WebManager {
     }
 
     assignSpiderToOrder(order) {
-        // Buscar araña disponible (sin currentTask)
+        // Buscar araña disponible (solo Workers pueden construir)
         let nearestSpider = null;
         let minDist = Infinity;
 
         for (const spider of this.spiders) {
-            if (!spider.currentTask && spider.silk > 0) {
+            // Solo Workers pueden construir telas
+            if (spider.type === 'Worker' && !spider.currentTask && spider.silk > 0) {
                 const dist = Math.hypot(
                     spider.x - order.startPoint.x,
                     spider.y - order.startPoint.y
