@@ -96,7 +96,7 @@ class Spider {
         const baseAngle3 = Math.atan2(dy3, dx3);
 
         // Aplicar bend más pronunciado
-        leg.angle3 = baseAngle3 + (bendDirection * 0.3);
+        leg.angle3 = baseAngle3 + (bendDirection * 0.6);
 
         leg.tipX = leg.joint2X + Math.cos(leg.angle3) * l3;
         leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * l3;
