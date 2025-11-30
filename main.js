@@ -14,7 +14,7 @@ canvas.height = 800;
 const tree = new Tree(canvas.width, canvas.height);
 
 // Crear araña en el tronco
-const spider = new Spider(canvas.width / 2, 300);
+const spider = new Spider(canvas.width * 0.83, 300);
 
 // Crear sistema de movimiento
 const movementSystem = new MovementSystem(tree);
