@@ -121,7 +121,9 @@ class Spider {
     updateWalkingGroups() {
         if (!this.isWalking) return;
 
-        this.walkCycle += 0.025;
+        // Workers mueven las patas 3x más rápido
+        const cycleSpeed = this.type === 'Worker' ? 0.075 : 0.025;
+        this.walkCycle += cycleSpeed;
 
         this.legs.forEach(leg => {
             this.updateLegDirectional(leg);
