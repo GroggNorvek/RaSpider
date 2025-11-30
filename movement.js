@@ -259,6 +259,13 @@ class SpiderController {
                 this.angle = angleToCenter;
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
+
+                // Movimiento hacia el tronco
+                this.spider.x += this.vx;
+                this.spider.y += this.vy;
+
+                // NO constrain - dejar que salga de la rama
+                return;
             } else if (distToEnd < 20) {
                 // Llegó al final - invertir dirección completamente
                 this.angle = angle + Math.PI; // 180 grados
