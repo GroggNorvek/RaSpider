@@ -24,10 +24,10 @@ class Tree {
         for (let i = 0; i < branchCount; i++) {
             const yPos = 150 + (this.trunkHeight - 300) * (i / Math.max(1, branchCount - 1));
 
-            // Primera rama (indice 0) sale de la pantalla - más larga
-            // Las otras 2 ramas (indices 1, 2) quedan visibles - más cortas
+            // Primera rama (indice 0) sale completamente de la pantalla
+            // Las otras 2 ramas (indices 1, 2) casi llegan al borde pero no se salen
             const isOffscreen = (i === 0);
-            const mainLength = isOffscreen ? 300 + Math.random() * 100 : 140 + Math.random() * 60;
+            const mainLength = isOffscreen ? 450 + Math.random() * 100 : 280 + Math.random() * 40;
             const baseAngle = Math.PI + (Math.random() * 0.4 - 0.2);
 
             const mainBranch = {
@@ -35,7 +35,7 @@ class Tree {
                 startY: yPos,
                 length: mainLength,
                 baseAngle: baseAngle,
-                thickness: 20, // Mucho más anchas (antes 8)
+                thickness: 55, // Muchísimo más anchas - coherente con el tronco
                 // Puntos de control para curva Bézier
                 cp1X: this.x + Math.cos(baseAngle + 0.3) * mainLength * 0.4,
                 cp1Y: yPos + Math.sin(baseAngle + 0.3) * mainLength * 0.4,
@@ -60,7 +60,7 @@ class Tree {
                     startY: subStartY,
                     length: subLength,
                     baseAngle: subAngle,
-                    thickness: 8, // Más anchas (antes 3)
+                    thickness: 20, // Proporcionalmente más anchas
                     cp1X: subStartX + Math.cos(subAngle + 0.4) * subLength * 0.5,
                     cp1Y: subStartY + Math.sin(subAngle + 0.4) * subLength * 0.5,
                     endX: subStartX + Math.cos(subAngle) * subLength,
