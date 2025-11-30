@@ -207,7 +207,7 @@ class WebManager {
 
         // 3. Comprobar TODAS LAS RAMAS Y SUB-RAMAS
         for (const branch of this.tree.branches) {
-            if (this.isOnBranch(x, y, branch, threshold)) {
+            if (this.isOnBranch(x, y, branch)) {
                 return { type: 'branch', branch, point: { x, y } }; // Punto exacto
             }
         }
@@ -240,12 +240,13 @@ class WebManager {
         return Math.hypot(x - projX, y - projY);
     }
 
-    isOnBranch(x, y, branch, threshold = 15) {
+    isOnBranch(x, y, branch) {
         const dist = this.distanceToLine(x, y,
             { x: branch.startX, y: branch.startY },
             { x: branch.endX, y: branch.endY }
         );
-        return dist < threshold;
+        // Usar el grosor real de la rama (thickness / 2 como radio)
+        return dist < (branch.thickness / 2);
     }
 
 
