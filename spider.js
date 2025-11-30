@@ -64,7 +64,7 @@ class Spider {
         let finalDist = Math.max(minReach, Math.min(distance, maxReach));
         const angleToTarget = Math.atan2(dy, dx);
 
-        const cosAngle1 = (l1 * l1 + finalDist * finalDist - l2 * l2) / (2 * l1 * finalDist);
+        const cosAngle1 = (l1 * l1 + finalDist * final Dist - l2 * l2) / (2 * l1 * finalDist);
         const bendAngle1 = Math.acos(Math.max(-1, Math.min(1, cosAngle1)));
 
         let bendDirection = leg.baseAngle > 0 ? -1 : 1;
@@ -90,8 +90,13 @@ class Spider {
         leg.joint2X = leg.joint1X + Math.cos(leg.angle2) * l2;
         leg.joint2Y = leg.joint1Y + Math.sin(leg.angle2) * l2;
 
-        leg.angle3 = Math.atan2(targetY - leg.joint2Y, targetX - leg.joint2X);
-        leg.angle3 += bendDirection * 0.15;
+        // TERCER SEGMENTO: Articulación mejorada
+        const dx3 = targetX - leg.joint2X;
+        const dy3 = targetY - leg.joint2Y;
+        const baseAngle3 = Math.atan2(dy3, dx3);
+
+        // Aplicar bend más pronunciado
+        leg.angle3 = baseAngle3 + (bendDirection * 0.3);
 
         leg.tipX = leg.joint2X + Math.cos(leg.angle3) * l3;
         leg.tipY = leg.joint2Y + Math.sin(leg.angle3) * l3;
