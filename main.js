@@ -13,15 +13,24 @@ canvas.height = 800;
 // Crear árbol (tercio derecho)
 const tree = new Tree(canvas.width, canvas.height);
 
-// Crear araña en el tronco
-const spider = new Spider(canvas.width * 0.83, 300);
+// Crear Matriarch en el nido
+const nestCenterX = tree.nest.x;
+const nestCenterY = tree.nest.y + 100; // Un poco abajo del centro
+const matriarch = new Spider(nestCenterX, nestCenterY, 'Matriarch');
+
+// Crear Worker en el tronco
+const worker = new Spider(canvas.width * 0.83, 300, 'Worker');
 
 // Crear sistema de movimiento
 const movementSystem = new MovementSystem(tree);
-const controller = new SpiderController(spider, movementSystem);
+const matriarchController = new MatriarchController(matriarch, movementSystem, tree);
+const workerController = new SpiderController(worker, movementSystem);
 
-// Crear sistema de telas de araña (pasar spider para auto-asignación)
-const webManager = new WebManager(tree, [spider]);
+// Array de arañas para el sistema de webs
+const spiders = [matriarch, worker];
+
+// Crear sistema de telas de araña (pasar array de arañas)
+const webManager = new WebManager(tree, spiders);
 const inputHandler = new InputHandler(canvas, webManager);
 
 /**
@@ -42,12 +51,16 @@ function gameLoop() {
     // Dibujar preview del input
     inputHandler.draw(ctx);
 
-    // Actualizar controlador (mueve la araña)
-    controller.update();
+    // Actualizar controladores
+    matriarchController.update();
+    workerController.update();
 
-    // Actualizar y dibujar araña
-    spider.update();
-    spider.draw(ctx);
+    // Actualizar y dibujar arañas
+    matriarch.update();
+    matriarch.draw(ctx);
+
+    worker.update();
+    worker.draw(ctx);
 
     requestAnimationFrame(gameLoop);
 }
@@ -55,7 +68,8 @@ function gameLoop() {
 // Iniciar el juego
 console.log('🕷️ Colony Sim iniciado');
 console.log('🌳 Árbol procedural generado con', tree.branches.length, 'ramas');
-console.log('🕷️ Araña vectorial con', spider.legs.length, 'patas articuladas');
-console.log('🚶 Sistema de movimiento por árbol activado');
+console.log('👑 Matriarch (grande) en el nido');
+console.log('🐜 Worker (pequeña) en el tronco');
+console.log('🚶 Sistema de movimiento activado');
 console.log('🕸️ Sistema de telas de araña activado');
 gameLoop();

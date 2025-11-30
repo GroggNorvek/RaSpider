@@ -281,3 +281,53 @@ class SpiderController {
         this.movement.constrainToSurface(this.spider);
     }
 }
+
+// Controlador para Matriarch - Movimiento restringido al nido
+class MatriarchController {
+    constructor(spider, movementSystem, tree) {
+        this.spider = spider;
+        this.movement = movementSystem;
+        this.tree = tree;
+
+        this.speed = 0.5; // Más lenta que Worker
+        this.angle = Math.random() * Math.PI * 2;
+    }
+
+    update() {
+        // Movimiento aleatorio suave
+        this.angle += (Math.random() - 0.5) * 0.15;
+
+        const vx = Math.cos(this.angle) * this.speed;
+        const vy = Math.sin(this.angle) * this.speed;
+
+        this.spider.x += vx;
+        this.spider.y += vy;
+
+        // Pasar velocidades a spider para animación de patas
+        this.spider.velocity = vx;
+        this.spider.velocityY = vy;
+
+        // Constrain estricto al nido
+        const nest = this.tree.nest;
+        const margin = 0.35; // Usar 35% del área del nido
+
+        this.spider.x = Math.max(
+            nest.x - nest.width * margin,
+            Math.min(nest.x + nest.width * margin, this.spider.x)
+        );
+        this.spider.y = Math.max(
+            nest.y - nest.height * margin,
+            Math.min(nest.y + nest.height * margin, this.spider.y)
+        );
+
+        // Rebotar en bordes del nido
+        if (this.spider.x <= nest.x - nest.width * margin ||
+            this.spider.x >= nest.x + nest.width * margin) {
+            this.angle = Math.PI - this.angle;
+        }
+        if (this.spider.y <= nest.y - nest.height * margin ||
+            this.spider.y >= nest.y + nest.height * margin) {
+            this.angle = -this.angle;
+        }
+    }
+}

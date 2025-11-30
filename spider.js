@@ -3,9 +3,14 @@
  */
 
 class Spider {
-    constructor(x, y) {
+    constructor(x, y, type = 'Worker') {
         this.x = x;
         this.y = y;
+        this.type = type; // 'Matriarch' | 'Worker'
+
+        // Escala según tipo: Matriarch = 1.0, Worker = 1/7
+        this.scale = type === 'Matriarch' ? 1.0 : (1 / 7);
+
         this.bodyRadius = 12;
 
         this.legs = [];
@@ -22,7 +27,7 @@ class Spider {
 
         // Sistema de recursos - Silk
         this.silk = 100;
-        this.maxSilk = 100;
+        this.maxS = 100;
         this.currentTask = null; // WebOrder asignada
     }
 
@@ -321,6 +326,11 @@ class Spider {
     }
 
     draw(ctx) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.scale(this.scale, this.scale);
+        ctx.translate(-this.x, -this.y);
+
         for (let i = 0; i < 4; i++) {
             this.drawLeg(ctx, this.legs[i]);
         }
@@ -330,5 +340,7 @@ class Spider {
         for (let i = 4; i < 8; i++) {
             this.drawLeg(ctx, this.legs[i]);
         }
+
+        ctx.restore();
     }
 }

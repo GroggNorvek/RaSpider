@@ -65,6 +65,14 @@ class Tree {
             length: sub2Length,
             thickness: 20
         });
+
+        // Propiedades del nido (para restricción de Matriarch)
+        this.nest = {
+            x: this.x + this.trunkWidth * 0.6,
+            y: this.trunkHeight * 0.35,
+            width: this.trunkWidth * 0.5,
+            height: this.trunkHeight * 0.5
+        };
     }
 
     draw(ctx) {
