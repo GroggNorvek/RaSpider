@@ -113,7 +113,7 @@ class Spider {
     }
 
     updateLegDirectional(leg) {
-        const groupA = [0, 2, 5, 7];
+        const groupA = [0, 2, 4, 7];
         const isGroupA = groupA.includes(leg.index);
         const phaseOffset = isGroupA ? 0 : Math.PI;
         const individualOffset = leg.index * 0.25;
