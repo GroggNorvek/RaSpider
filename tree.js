@@ -40,12 +40,10 @@ class Tree {
 
         ctx.beginPath();
 
-        // ===== CONTORNO EXTERIOR COMPLETO (orgánico) =====
-
         // 1. Esquina superior derecha
         ctx.moveTo(this.x + this.trunkWidth, this.y);
 
-        // 2. Borde derecho con ondulación orgánica
+        // 2. Borde derecho con ondulación
         const rightSteps = 25;
         for (let i = 0; i <= rightSteps; i++) {
             const t = i / rightSteps;
@@ -54,7 +52,7 @@ class Tree {
             ctx.lineTo(this.x + this.trunkWidth + curve, yPos);
         }
 
-        // 3. Base con curva
+        // 3. Base
         const baseSteps = 8;
         for (let i = 0; i <= baseSteps; i++) {
             const t = i / baseSteps;
@@ -63,7 +61,7 @@ class Tree {
             ctx.lineTo(xPos, this.trunkHeight - curve);
         }
 
-        // 4. Borde izquierdo inferior con ondulación
+        // 4. Borde izquierdo inferior hasta ANTES de la rama
         const leftLowerSteps = 20;
         const branchBottomY = this.branchY - branchBaseWidth / 2;
         for (let i = 0; i <= leftLowerSteps; i++) {
@@ -73,15 +71,16 @@ class Tree {
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 5. RAMA - lado inferior con ONDULACIONES MUY VISIBLES
+        // 5. RAMA COMPLETA - trazado continuo sin saltos
         const steps = 50;
+
+        // Lado INFERIOR de la rama
         for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const baseX = this.x + (branchEndX - this.x) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            // ONDULACIONES AMPLIAS Y VISIBLES
             const wave1 = Math.sin(t * Math.PI * 2.2) * 12 * (1 - t * 0.6);
             const wave2 = Math.sin(t * Math.PI * 1.5 + 0.8) * 8 * (1 - t * 0.4);
             const totalWave = wave1 + wave2;
@@ -92,7 +91,7 @@ class Tree {
             );
         }
 
-        // 6. Punta redondeada
+        // Punta
         ctx.arc(
             branchEndX, branchEndY,
             branchTipWidth / 2,
@@ -101,14 +100,13 @@ class Tree {
             false
         );
 
-        // 7. RAMA - lado superior con ondulaciones complementarias
+        // Lado SUPERIOR de la rama (volviendo)
         for (let i = steps; i >= 0; i--) {
             const t = i / steps;
             const baseX = this.x + (branchEndX - this.x) * t;
             const baseY = this.branchY + (branchEndY - this.branchY) * t;
             const width = branchBaseWidth + (branchTipWidth - branchBaseWidth) * t;
 
-            // Ondulaciones inversas para el otro lado
             const wave1 = Math.sin(t * Math.PI * 2.2 + Math.PI) * 12 * (1 - t * 0.6);
             const wave2 = Math.sin(t * Math.PI * 1.5 - 0.8) * 8 * (1 - t * 0.4);
             const totalWave = wave1 + wave2;
@@ -119,7 +117,7 @@ class Tree {
             );
         }
 
-        // 8. Borde izquierdo superior con ondulación
+        // 6. Continuar borde izquierdo SUPERIOR del tronco desde la rama hacia arriba
         const leftUpperSteps = 20;
         const branchTopY = this.branchY + branchBaseWidth / 2;
         for (let i = 0; i <= leftUpperSteps; i++) {
@@ -129,12 +127,11 @@ class Tree {
             ctx.lineTo(this.x + curve, yPos);
         }
 
-        // 9. Cerrar
+        // 7. Cerrar el path
         ctx.lineTo(this.x, this.y);
         ctx.lineTo(this.x + this.trunkWidth, this.y);
 
         ctx.closePath();
         ctx.fill();
-        // Sin stroke para evitar línea de corte
     }
 }
