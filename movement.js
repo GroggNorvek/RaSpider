@@ -99,8 +99,8 @@ class SpiderController {
         this.spider = spider;
         this.movement = movementSystem;
 
-        // Movimiento más lento
-        this.speed = 0.3;
+        // Worker: 3x más rápido
+        this.speed = 0.9;
 
         // Dirección 2D aleatoria
         this.angle = Math.random() * Math.PI * 2;
@@ -289,7 +289,7 @@ class MatriarchController {
         this.movement = movementSystem;
         this.tree = tree;
 
-        this.speed = 0.5; // Más lenta que Worker
+        this.speed = 0.25; // Mitad de velocidad
         this.angle = Math.random() * Math.PI * 2;
     }
 
