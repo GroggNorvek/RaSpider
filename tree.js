@@ -27,7 +27,7 @@ class Tree {
             // Primera rama (indice 0) sale completamente de la pantalla
             // Las otras 2 ramas (indices 1, 2) casi llegan al borde pero no se salen
             const isOffscreen = (i === 0);
-            const mainLength = isOffscreen ? 450 + Math.random() * 100 : 280 + Math.random() * 40;
+            const mainLength = isOffscreen ? 650 + Math.random() * 100 : 280 + Math.random() * 40;
             const baseAngle = Math.PI + (Math.random() * 0.4 - 0.2);
 
             const mainBranch = {
