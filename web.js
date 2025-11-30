@@ -33,7 +33,7 @@ class WebOrder {
     draw(ctx) {
         // Dibujar orden como línea discontinua
         ctx.save();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.strokeStyle = 'rgba(192, 192, 192, 0.5)'; // Gris plata
         ctx.setLineDash([10, 5]);
         ctx.lineWidth = 2;
 
@@ -45,7 +45,7 @@ class WebOrder {
         // Mostrar progreso
         if (this.silkProgress > 0) {
             const progress = this.silkProgress / this.silkRequired;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)'; // Gris plata
             ctx.setLineDash([]);
 
             ctx.beginPath();
@@ -72,7 +72,7 @@ class Web {
 
     draw(ctx) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)'; // Gris plata
         ctx.setLineDash([]);
         ctx.lineWidth = this.thickness;
 
@@ -346,7 +346,7 @@ class InputHandler {
         // Dibujar preview durante el drag
         if (this.isDragging && this.dragStart && this.dragCurrent) {
             ctx.save();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.strokeStyle = 'rgba(192, 192, 192, 0.3)'; // Gris plata
             ctx.setLineDash([5, 5]);
             ctx.lineWidth = 2;
 
