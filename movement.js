@@ -251,8 +251,8 @@ class SpiderController {
             // Si está muy cerca del inicio, redirigir hacia el centro del tronco para salir de la rama
             if (distToStart < 30) {
                 // Calcular centro del tronco
-                const trunkCenterX = this.tree.x + this.tree.trunkWidth / 2;
-                const trunkCenterY = this.tree.y + this.tree.trunkHeight / 2;
+                const trunkCenterX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
+                const trunkCenterY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
 
                 // Dirigirse hacia el centro del tronco
                 const angleToCenter = Math.atan2(trunkCenterY - this.spider.y, trunkCenterX - this.spider.x);
