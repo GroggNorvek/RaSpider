@@ -162,8 +162,7 @@ class SpiderController {
     update() {
         // Prioridad: si tiene una tarea asignada, trabajar en ella
         if (this.handleWebConstruction()) {
-            // Constrain to surface mientras construye
-            this.movement.constrainToSurface(this.spider);
+            // NO constrain - handleWebConstruction ya maneja el movimiento
             return;
         }
 
