@@ -140,12 +140,17 @@ class SpiderController {
             return false;
         }
 
-        // Moverse hacia el punto inicial de la web
-        const targetX = task.startPoint.x;
-        const targetY = task.startPoint.y;
+        // Calcular punto actual en la web según progreso
+        const progress = task.silkProgress / task.silkRequired;
+        const dx = task.endPoint.x - task.startPoint.x;
+        const dy = task.endPoint.y - task.startPoint.y;
+
+        // Punto objetivo = donde debería estar Worker según el progreso
+        const targetX = task.startPoint.x + dx * progress;
+        const targetY = task.startPoint.y + dy * progress;
         const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
 
-        // Si está lejos, moverse hacia allí
+        // Si está lejos del punto de progreso, moverse hacia allí
         if (dist > 15) {
             const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
             this.angle = angleToTarget;
@@ -166,7 +171,7 @@ class SpiderController {
             return true; // Está trabajando en la tarea
         }
 
-        // Está en posición, aportar silk
+        // Está en posición sobre la web, aportar silk
         if (this.spider.silk > 0) {
             const silkContribution = Math.min(0.5, this.spider.silk); // 0.5 silk por frame
             this.spider.silk -= silkContribution;
