@@ -19,6 +19,14 @@ class WebOrder {
 
         this.status = 'pending'; // 'pending', 'in_progress', 'complete'
         this.assignedSpiders = [];
+        this.buildReversed = false; // true si se construye desde endPoint hacia startPoint
+    }
+
+    // Establecer dirección de construcción según posición de Worker
+    setBuildDirection(spiderX, spiderY) {
+        const distToStart = Math.hypot(spiderX - this.startPoint.x, spiderY - this.startPoint.y);
+        const distToEnd = Math.hypot(spiderX - this.endPoint.x, spiderY - this.endPoint.y);
+        this.buildReversed = distToEnd < distToStart;
     }
 
     addSilk(amount) {
@@ -57,16 +65,22 @@ class WebOrder {
             ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)';
             ctx.setLineDash([]);
 
-            const endX = this.startPoint.x + dx * progress;
-            const endY = this.startPoint.y + dy * progress;
+            // Determinar puntos según dirección de construcción
+            const buildStart = this.buildReversed ? this.endPoint : this.startPoint;
+            const buildEnd = this.buildReversed ? this.startPoint : this.endPoint;
+            const buildDx = buildEnd.x - buildStart.x;
+            const buildDy = buildEnd.y - buildStart.y;
+
+            const progressX = buildStart.x + buildDx * progress;
+            const progressY = buildStart.y + buildDy * progress;
 
             ctx.beginPath();
-            ctx.moveTo(this.startPoint.x, this.startPoint.y);
+            ctx.moveTo(buildStart.x, buildStart.y);
             ctx.quadraticCurveTo(
-                this.startPoint.x + (midX - this.startPoint.x) * progress,
-                this.startPoint.y + (midY - this.startPoint.y) * progress,
-                endX,
-                endY
+                buildStart.x + (midX - buildStart.x) * progress,
+                buildStart.y + (midY - buildStart.y) * progress,
+                progressX,
+                progressY
             );
             ctx.stroke();
         }
@@ -191,6 +205,9 @@ class WebManager {
 
         // Asignar la araña más cercana
         if (nearestSpider) {
+            // Establecer dirección de construcción según posición de Worker
+            order.setBuildDirection(nearestSpider.x, nearestSpider.y);
+
             nearestSpider.currentTask = order;
             order.assignedSpiders.push(nearestSpider);
             order.status = 'in_progress';
