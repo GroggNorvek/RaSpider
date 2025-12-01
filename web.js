@@ -210,6 +210,16 @@ class WebManager {
         return web;
     }
 
+    // Encontrar web en un punto dado (para detección de superficie transitable)
+    findWebAt(x, y) {
+        for (const web of this.webs) {
+            if (web.isNear(x, y, 10)) {
+                return web;
+            }
+        }
+        return null;
+    }
+
     findSurfaceAt(x, y) {
         const threshold = 15; // Radio de detección
 

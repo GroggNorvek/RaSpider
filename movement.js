@@ -5,6 +5,11 @@
 class MovementSystem {
     constructor(tree) {
         this.tree = tree;
+        this.webManager = null; // Se establecerá después
+    }
+
+    setWebManager(webManager) {
+        this.webManager = webManager;
     }
 
     isOnTrunk(x, y) {
@@ -56,11 +61,21 @@ class MovementSystem {
     }
 
     getSurfaceAt(x, y) {
+        // 1. Comprobar webs construidas primero
+        if (this.webManager) {
+            const web = this.webManager.findWebAt(x, y);
+            if (web) {
+                return { type: 'web', web: web };
+            }
+        }
+
+        // 2. Comprobar ramas
         const branch = this.findNearestBranch(x, y);
         if (branch) {
             return { type: 'branch', branch: branch };
         }
 
+        // 3. Comprobar tronco
         if (this.isOnTrunk(x, y)) {
             return { type: 'trunk' };
         }
