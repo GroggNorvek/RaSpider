@@ -31,28 +31,42 @@ class WebOrder {
     }
 
     draw(ctx) {
-        // Dibujar orden como línea discontinua
+        // Dibujar orden como línea discontinua orgánica
         ctx.save();
-        ctx.strokeStyle = 'rgba(192, 192, 192, 0.5)'; // Gris plata
+        ctx.strokeStyle = 'rgba(192, 192, 192, 0.5)';
         ctx.setLineDash([10, 5]);
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 0.7; // 1/3 del grosor original
+
+        // Curva orgánica con ligera caída
+        const dx = this.endPoint.x - this.startPoint.x;
+        const dy = this.endPoint.y - this.startPoint.y;
+        const length = Math.hypot(dx, dy);
+        const sag = length * 0.08; // 8% de caída
+
+        const midX = (this.startPoint.x + this.endPoint.x) / 2;
+        const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
 
         ctx.beginPath();
         ctx.moveTo(this.startPoint.x, this.startPoint.y);
-        ctx.lineTo(this.endPoint.x, this.endPoint.y);
+        ctx.quadraticCurveTo(midX, midY, this.endPoint.x, this.endPoint.y);
         ctx.stroke();
 
-        // Mostrar progreso
+        // Mostrar progreso con curva
         if (this.silkProgress > 0) {
             const progress = this.silkProgress / this.silkRequired;
-            ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)'; // Gris plata
+            ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)';
             ctx.setLineDash([]);
+
+            const endX = this.startPoint.x + dx * progress;
+            const endY = this.startPoint.y + dy * progress;
 
             ctx.beginPath();
             ctx.moveTo(this.startPoint.x, this.startPoint.y);
-            ctx.lineTo(
-                this.startPoint.x + (this.endPoint.x - this.startPoint.x) * progress,
-                this.startPoint.y + (this.endPoint.y - this.startPoint.y) * progress
+            ctx.quadraticCurveTo(
+                this.startPoint.x + (midX - this.startPoint.x) * progress,
+                this.startPoint.y + (midY - this.startPoint.y) * progress,
+                endX,
+                endY
             );
             ctx.stroke();
         }
@@ -66,19 +80,28 @@ class Web {
     constructor(startPoint, endPoint) {
         this.startPoint = { x: startPoint.x, y: startPoint.y };
         this.endPoint = { x: endPoint.x, y: endPoint.y };
-        this.thickness = 2;
+        this.thickness = 0.7; // 1/3 del grosor original (era 2)
         this.strength = 100;
     }
 
     draw(ctx) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)'; // Gris plata
+        ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)';
         ctx.setLineDash([]);
         ctx.lineWidth = this.thickness;
 
+        // Curva orgánica con ligera caída por gravedad
+        const dx = this.endPoint.x - this.startPoint.x;
+        const dy = this.endPoint.y - this.startPoint.y;
+        const length = Math.hypot(dx, dy);
+        const sag = length * 0.08; // 8% de caída
+
+        const midX = (this.startPoint.x + this.endPoint.x) / 2;
+        const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
+
         ctx.beginPath();
         ctx.moveTo(this.startPoint.x, this.startPoint.y);
-        ctx.lineTo(this.endPoint.x, this.endPoint.y);
+        ctx.quadraticCurveTo(midX, midY, this.endPoint.x, this.endPoint.y);
         ctx.stroke();
 
         ctx.restore();
@@ -345,16 +368,25 @@ class InputHandler {
     }
 
     draw(ctx) {
-        // Dibujar preview durante el drag
+        // Dibujar preview durante el drag con estética orgánica
         if (this.isDragging && this.dragStart && this.dragCurrent) {
             ctx.save();
-            ctx.strokeStyle = 'rgba(192, 192, 192, 0.3)'; // Gris plata
+            ctx.strokeStyle = 'rgba(192, 192, 192, 0.3)';
             ctx.setLineDash([5, 5]);
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 0.7; // Mismo grosor que las webs
+
+            // Curva orgánica para preview
+            const dx = this.dragCurrent.x - this.dragStart.x;
+            const dy = this.dragCurrent.y - this.dragStart.y;
+            const length = Math.hypot(dx, dy);
+            const sag = length * 0.08;
+
+            const midX = (this.dragStart.x + this.dragCurrent.x) / 2;
+            const midY = (this.dragStart.y + this.dragCurrent.y) / 2 + sag;
 
             ctx.beginPath();
             ctx.moveTo(this.dragStart.x, this.dragStart.y);
-            ctx.lineTo(this.dragCurrent.x, this.dragCurrent.y);
+            ctx.quadraticCurveTo(midX, midY, this.dragCurrent.x, this.dragCurrent.y);
             ctx.stroke();
 
             ctx.restore();
