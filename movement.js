@@ -303,21 +303,33 @@ class MatriarchController {
         this.spider.x += vx;
         this.spider.y += vy;
 
-        // Pasar velocidades a spider para animación de patas
-        this.spider.velocity = vx;
-        this.spider.velocityY = vy;
-
         // Constrain al tronco completo (evitar ramas)
         const trunkLeft = this.tree.x + 20;
         const trunkRight = this.tree.x + this.tree.trunkWidth - 20;
         const trunkTop = this.tree.y + 50;
         const trunkBottom = this.tree.y + this.tree.trunkHeight - 50;
 
-        // Limitar a los bordes del tronco
-        this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
-        this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
+        // Verificar si necesita rebotar ANTES de actualizar velocidades
+        let needsBounce = false;
 
-        // Rebotar en bordes del tronco
+        // Limitar a los bordes del tronco
+        if (this.spider.x < trunkLeft) {
+            this.spider.x = trunkLeft;
+            needsBounce = true;
+        } else if (this.spider.x > trunkRight) {
+            this.spider.x = trunkRight;
+            needsBounce = true;
+        }
+
+        if (this.spider.y < trunkTop) {
+            this.spider.y = trunkTop;
+            needsBounce = true;
+        } else if (this.spider.y > trunkBottom) {
+            this.spider.y = trunkBottom;
+            needsBounce = true;
+        }
+
+        // Rebotar en bordes del tronco (suavemente)
         if (this.spider.x <= trunkLeft + 10 || this.spider.x >= trunkRight - 10) {
             this.angle = Math.PI - this.angle;
         }
@@ -327,14 +339,24 @@ class MatriarchController {
 
         // Evitar la zona de la rama principal (rechazar si está muy cerca)
         const branchY = this.tree.branchY;
-        const branchProximity = 60; // Distancia de seguridad
+        const branchProximity = 60;
         if (Math.abs(this.spider.y - branchY) < branchProximity && this.spider.x > trunkLeft + 100) {
-            // Si está cerca de la rama, empujar hacia arriba o abajo
-            if (this.spider.y < branchY) {
-                this.angle = -Math.PI / 2; // Hacia arriba
-            } else {
-                this.angle = Math.PI / 2; // Hacia abajo
-            }
+            // Si está cerca de la rama, empujar hacia arriba o abajo SUAVEMENTE
+            const targetAngle = this.spider.y < branchY ? -Math.PI / 2 : Math.PI / 2;
+            // Interpolar suavemente hacia el nuevo ángulo
+            let angleDiff = targetAngle - this.angle;
+            while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+            while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+            this.angle += angleDiff * 0.1; // Cambio gradual
         }
+
+        // IMPORTANTE: Actualizar velocidades DESPUÉS de todos los ajustes de ángulo
+        // Esto asegura que las patas reciban velocidades consistentes
+        const finalVx = Math.cos(this.angle) * this.speed;
+        const finalVy = Math.sin(this.angle) * this.speed;
+
+        // Pasar velocidades a spider para animación de patas
+        this.spider.velocity = finalVx;
+        this.spider.velocityY = finalVy;
     }
 }
