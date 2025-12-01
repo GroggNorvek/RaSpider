@@ -33,6 +33,9 @@ const spiders = [matriarch, worker];
 const webManager = new WebManager(tree, spiders);
 const inputHandler = new InputHandler(canvas, webManager);
 
+// Conectar webManager con movementSystem para detección de webs
+movementSystem.setWebManager(webManager);
+
 /**
  * Loop principal del juego
  */
