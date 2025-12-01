@@ -136,8 +136,11 @@ class SpiderController {
             this.spider.velocity = this.vx;
             this.spider.velocityY = this.vy;
 
-            // Restringir a superficie mientras se mueve hacia el objetivo
-            this.movement.constrainToSurface(this.spider);
+            // Solo constrain si está muy lejos (>30px)
+            // Cuando está cerca, permitir movimiento libre para alcanzar punto objetivo
+            if (dist > 30) {
+                this.movement.constrainToSurface(this.spider);
+            }
 
             return true; // Está trabajando en la tarea
         }
