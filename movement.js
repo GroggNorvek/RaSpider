@@ -287,41 +287,47 @@ class MatriarchController {
     constructor(spider, movementSystem, tree) {
         this.spider = spider;
         this.movement = movementSystem;
-        update() {
-            // Movimiento aleatorio suave (LÓGICA ORIGINAL)
-            this.angle += (Math.random() - 0.5) * 0.15;
+        this.tree = tree;
 
-            const vx = Math.cos(this.angle) * this.speed;
-            const vy = Math.sin(this.angle) * this.speed;
+        this.speed = 0.5; // Velocidad original de Matriarch
+        this.angle = Math.random() * Math.PI * 2;
+    }
 
-            this.spider.x += vx;
-            this.spider.y += vy;
+    update() {
+        // Movimiento aleatorio suave (LÓGICA ORIGINAL)
+        this.angle += (Math.random() - 0.5) * 0.15;
 
-            // Pasar velocidades a spider INMEDIATAMENTE (clave para evitar glitch)
-            this.spider.velocity = vx;
-            this.spider.velocityY = vy;
+        const vx = Math.cos(this.angle) * this.speed;
+        const vy = Math.sin(this.angle) * this.speed;
 
-            // Constrain al tronco completo
-            const trunkLeft = this.tree.x + 20;
-            const trunkRight = this.tree.x + this.tree.trunkWidth - 20;
-            const trunkTop = this.tree.y + 50;
-            const trunkBottom = this.tree.y + this.tree.trunkHeight - 50;
+        this.spider.x += vx;
+        this.spider.y += vy;
 
-            this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
-            this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
+        // Pasar velocidades a spider INMEDIATAMENTE (clave para evitar glitch)
+        this.spider.velocity = vx;
+        this.spider.velocityY = vy;
 
-            // Rebotar en bordes (simple, como original)
-            if (this.spider.x <= trunkLeft + 10 || this.spider.x >= trunkRight - 10) {
-                this.angle = Math.PI - this.angle;
-            }
-            if (this.spider.y <= trunkTop + 10 || this.spider.y >= trunkBottom - 10) {
-                this.angle = -this.angle;
-            }
+        // Constrain al tronco completo
+        const trunkLeft = this.tree.x + 20;
+        const trunkRight = this.tree.x + this.tree.trunkWidth - 20;
+        const trunkTop = this.tree.y + 50;
+        const trunkBottom = this.tree.y + this.tree.trunkHeight - 50;
 
-            // Evitar zona de rama (simple rebote)
-            const branchY = this.tree.branchY;
-            if (Math.abs(this.spider.y - branchY) < 60 && this.spider.x > trunkLeft + 100) {
-                this.angle = -this.angle;
-            }
+        this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
+        this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
+
+        // Rebotar en bordes (simple, como original)
+        if (this.spider.x <= trunkLeft + 10 || this.spider.x >= trunkRight - 10) {
+            this.angle = Math.PI - this.angle;
+        }
+        if (this.spider.y <= trunkTop + 10 || this.spider.y >= trunkBottom - 10) {
+            this.angle = -this.angle;
+        }
+
+        // Evitar zona de rama (simple rebote)
+        const branchY = this.tree.branchY;
+        if (Math.abs(this.spider.y - branchY) < 60 && this.spider.x > trunkLeft + 100) {
+            this.angle = -this.angle;
         }
     }
+}
