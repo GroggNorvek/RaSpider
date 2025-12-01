@@ -136,6 +136,9 @@ class SpiderController {
             this.spider.velocity = this.vx;
             this.spider.velocityY = this.vy;
 
+            // Restringir a superficie mientras se mueve hacia el objetivo
+            this.movement.constrainToSurface(this.spider);
+
             return true; // Está trabajando en la tarea
         }
 
