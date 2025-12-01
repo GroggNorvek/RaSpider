@@ -37,7 +37,9 @@ class MovementSystem {
         const closestY = branch.startY + t * dy;
         const distance = Math.hypot(x - closestX, y - closestY);
 
-        return distance < branch.thickness / 2 + 10;
+        // Umbral ajustado: solo thickness/2 + margen pequeño (5px en lugar de 10)
+        // Esto previene que ramas finas bloqueen el movimiento
+        return distance < branch.thickness / 2 + 5;
     }
 
     findNearestBranch(x, y) {
