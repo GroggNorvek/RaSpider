@@ -142,17 +142,25 @@ class SpiderController {
             return false;
         }
 
-        // Determinar extremo más cercano
+        // Determinar extremo más cercano (punto de inicio)
         const distToStart = Math.hypot(this.spider.x - task.startPoint.x, this.spider.y - task.startPoint.y);
         const distToEnd = Math.hypot(this.spider.x - task.endPoint.x, this.spider.y - task.endPoint.y);
         const nearPoint = distToStart < distToEnd ? task.startPoint : task.endPoint;
+        const farPoint = distToStart < distToEnd ? task.endPoint : task.startPoint;
 
-        // Moverse hacia el punto más cercano
-        const dist = Math.hypot(this.spider.x - nearPoint.x, this.spider.y - nearPoint.y);
+        // Calcular punto de progreso en la web
+        const progress = task.silkProgress / task.silkRequired;
+        const dx = farPoint.x - nearPoint.x;
+        const dy = farPoint.y - nearPoint.y;
 
-        // Si está lejos, moverse hacia el punto más cercano
-        if (dist > 15) {
-            const angleToTarget = Math.atan2(nearPoint.y - this.spider.y, nearPoint.x - this.spider.x);
+        // Punto objetivo = donde debería estar Worker según progreso
+        const targetX = nearPoint.x + dx * progress;
+        const targetY = nearPoint.y + dy * progress;
+        const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
+
+        // Si está lejos del punto de progreso, moverse hacia allí
+        if (dist > 20) {
+            const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
             this.angle = angleToTarget;
             this.vx = Math.cos(this.angle) * this.speed;
             this.vy = Math.sin(this.angle) * this.speed;
@@ -162,12 +170,7 @@ class SpiderController {
             this.spider.velocity = this.vx;
             this.spider.velocityY = this.vy;
 
-            // Solo constrain si está muy lejos (>30px)
-            // Cuando está cerca, permitir movimiento libre para alcanzar punto objetivo
-            if (dist > 30) {
-                this.movement.constrainToSurface(this.spider);
-            }
-
+            // NO constrain durante construcción - movimiento libre
             return true; // Está trabajando en la tarea
         }
 
