@@ -32,13 +32,6 @@ class MovementSystem {
         const closestY = branch.startY + t * dy;
         const distance = Math.hypot(x - closestX, y - closestY);
 
-        // Excluir zona de transición cerca del inicio de la rama (40px)
-        // Esto permite que las arañas salgan de la rama al tronco sin bloquearse
-        const distToStart = Math.hypot(x - branch.startX, y - branch.startY);
-        if (distToStart < 40) {
-            return false; // No considerar como "en rama" si está en zona de transición
-        }
-
         return distance < branch.thickness / 2 + 10;
     }
 
@@ -256,7 +249,8 @@ class SpiderController {
             const distToStart = Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY);
 
             // Si está muy cerca del inicio, redirigir hacia el centro del tronco para salir de la rama
-            if (distToStart < 30) {
+            // Umbral de 50px para asegurar que escape del radio de detección de rama (45px)
+            if (distToStart < 50) {
                 // Calcular centro del tronco
                 const trunkCenterX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
                 const trunkCenterY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
@@ -270,6 +264,10 @@ class SpiderController {
                 // Movimiento hacia el tronco
                 this.spider.x += this.vx;
                 this.spider.y += this.vy;
+
+                // Actualizar velocidad para animación de patas
+                this.spider.velocity = this.vx;
+                this.spider.velocityY = this.vy;
 
                 // NO constrain - dejar que salga de la rama
                 return;
