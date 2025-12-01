@@ -105,6 +105,12 @@ class MovementSystem {
 
             spider.x = branch.startX + t * dx;
             spider.y = branch.startY + t * dy;
+        } else if (surface.type === 'web') {
+            // Constrain a la web - proyectar sobre la línea
+            const web = surface.web;
+            const closest = web.getClosestPoint(spider.x, spider.y);
+            spider.x = closest.x;
+            spider.y = closest.y;
         }
     }
 }
