@@ -32,6 +32,13 @@ class MovementSystem {
         const closestY = branch.startY + t * dy;
         const distance = Math.hypot(x - closestX, y - closestY);
 
+        // Excluir zona de transición cerca del inicio de la rama (40px)
+        // Esto permite que las arañas salgan de la rama al tronco sin bloquearse
+        const distToStart = Math.hypot(x - branch.startX, y - branch.startY);
+        if (distToStart < 40) {
+            return false; // No considerar como "en rama" si está en zona de transición
+        }
+
         return distance < branch.thickness / 2 + 10;
     }
 
