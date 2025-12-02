@@ -325,7 +325,30 @@ class SpiderController {
             this.spider.y += this.vy;
             this.spider.velocity = this.vx;
             this.spider.velocityY = this.vy;
-            // APLICAR constrainToSurface para mantener Worker sobre la web
+
+            // Verificar si está cerca del nearPoint (salida permitida)
+            const web = surface.web;
+            let canExit = false;
+
+            if (this.movement.webManager) {
+                for (const order of this.movement.webManager.orders) {
+                    if (order.partialWeb === web && order.nearPoint) {
+                        const distToNearPoint = Math.hypot(
+                            this.spider.x - order.nearPoint.x,
+                            this.spider.y - order.nearPoint.y
+                        );
+                        if (distToNearPoint < 20) {
+                            canExit = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (canExit) {
+                return; // Permitir salida por nearPoint
+            }
+            // Si no, aplicar constraint para mantenerla en la web
         }
 
         this.movement.constrainToSurface(this.spider);
