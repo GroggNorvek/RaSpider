@@ -203,92 +203,19 @@ class SpiderController {
         // Movimiento normal si no hay tareas
         const surface = this.movement.getSurfaceAt(this.spider.x, this.spider.y);
 
-        if (surface.type === 'trunk') {
-            const trunkLeft = this.movement.tree.x + 30;
-            const trunkRight = this.movement.tree.x + this.movement.tree.trunkWidth - 30;
-            const trunkTop = this.movement.tree.y + 50;
-            const trunkBottom = this.movement.tree.y + this.movement.tree.trunkHeight - 50;
+        // Movimiento aleatorio en TODAS las superficies (tronco, rama, subrama, web)
+        this.angle += (Math.random() - 0.5) * 0.2; // Cambios aleatorios continuos
+        this.vx = Math.cos(this.angle) * this.speed;
+        this.vy = Math.sin(this.angle) * this.speed;
 
-            // DETECCIÓN ANTICIPADA: calcular distancias a los bordes
-            const distToLeft = this.spider.x - trunkLeft;
-            const distToRight = trunkRight - this.spider.x;
-            const distToTop = this.spider.y - trunkTop;
-            const distToBottom = trunkBottom - this.spider.y;
+        this.spider.x += this.vx;
+        this.spider.y += this.vy;
+        this.spider.velocity = this.vx;
+        this.spider.velocityY = this.vy;
 
-            // Zona de anticipación: 60 píxeles antes del borde
-            const anticipationZone = 60;
-
-            // Calcular fuerza de giro basada en proximidad al borde
-            let turnForce = 0;
-            let targetAngle = this.angle;
-
-            // Detectar proximidad a CUALQUIER borde
-            if (distToLeft < anticipationZone || distToRight < anticipationZone ||
-                distToTop < anticipationZone || distToBottom < anticipationZone) {
-
-                // Calcular ángulo hacia el centro
-                const centerX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
-                const centerY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
-                const angleToCenter = Math.atan2(centerY - this.spider.y, centerX - this.spider.x);
-
-                // Calcular qué tan cerca está del borde (0 = lejos, 1 = muy cerca)
-                const minDist = Math.min(distToLeft, distToRight, distToTop, distToBottom);
-                const proximity = 1 - (minDist / anticipationZone);
-
-                // Interpolar gradualmente hacia el centro
-                // Cuanto más cerca del borde, más fuerte el giro
-                targetAngle = angleToCenter;
-                turnForce = proximity * 0.08; // Giro muy gradual
-            }
-
-            // Aplicar giro gradual (no instantáneo)
-            if (turnForce > 0) {
-                // Interpolar ángulo suavemente
-                let angleDiff = targetAngle - this.angle;
-
-                // Normalizar diferencia de ángulo
-                while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
-                while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
-
-                // Girar gradualmente
-                this.angle += angleDiff * turnForce;
-
-                // Actualizar velocidades
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-            }
-
-            // Aplicar movimiento
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-
-            // Pasar velocidad a spider para detección 2D de patas
-            this.spider.velocity = this.vx;
-            this.spider.velocityY = this.vy;
-
-            // Límites estrictos (por si acaso)
-            this.spider.x = Math.max(trunkLeft, Math.min(trunkRight, this.spider.x));
-            this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
-
-        } else if (surface.type === 'branch') {
-            // Worker vagando sobre rama - movimiento aleatorio
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-        } else if (surface.type === 'web') {
-            // Worker vagando sobre web - añadir cambios aleatorios de dirección
-            // Esto permite que eventualmente encuentre la salida en nearPoint
-            this.angle += (Math.random() - 0.5) * 0.2; // Pequeños cambios aleatorios
-            this.vx = Math.cos(this.angle) * this.speed;
-            this.vy = Math.sin(this.angle) * this.speed;
-
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-            this.spider.velocity = this.vx;
-            this.spider.velocityY = this.vy;
-
-            // Verificar si está cerca del nearPoint (salida permitida)
+        // Salida especial solo para webs parciales por nearPoint
+        if (surface.type === 'web') {
             const web = surface.web;
-            let canExit = false;
 
             if (this.movement.webManager) {
                 for (const order of this.movement.webManager.orders) {
@@ -298,17 +225,11 @@ class SpiderController {
                             this.spider.y - order.nearPoint.y
                         );
                         if (distToNearPoint < 20) {
-                            canExit = true;
-                            break;
+                            return; // Permitir salida por nearPoint
                         }
                     }
                 }
             }
-
-            if (canExit) {
-                return; // Permitir salida por nearPoint
-            }
-            // Si no, aplicar constraint para mantenerla en la web
         }
 
         this.movement.constrainToSurface(this.spider);
