@@ -192,6 +192,13 @@ class SpiderController {
             this.angle += Math.PI;
             this.vx = Math.cos(this.angle) * this.speed;
             this.vy = Math.sin(this.angle) * this.speed;
+
+            // Aplicar movimiento inmediatamente para salir de la zona
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+            this.spider.velocity = this.vx;
+            this.spider.velocityY = this.vy;
+
             return false;
         }
 
