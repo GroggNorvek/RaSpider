@@ -314,6 +314,14 @@ class SpiderController {
             // Movimiento normal
             this.spider.x += this.vx;
             this.spider.y += this.vy;
+        } else if (surface.type === 'web') {
+            // Worker vagando sobre web - moverse libremente
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+            this.spider.velocity = this.vx;
+            this.spider.velocityY = this.vy;
+            // NO aplicar constrainToSurface - permite salir de la web
+            return;
         }
 
         this.movement.constrainToSurface(this.spider);
