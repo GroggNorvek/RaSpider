@@ -206,8 +206,13 @@ class SpiderController {
                 this.spider.currentTask = null;
                 return false;
             }
-        } else {
-            // Silk = 0: abandonar y pasar a modo vagabundo
+       } else {
+            // Silk = 0: marcar orden como pending para que otra Worker pueda continuar
+            if (task.silkProgress < task.silkRequired) {
+                task.status = 'pending';
+                // Limpiar lista de Workers asignadas para permitir reasignación
+                task.assignedSpiders = [];
+            }
             this.spider.currentTask = null;
             return false;
         }
