@@ -20,6 +20,9 @@ class WebOrder {
         this.status = 'pending'; // 'pending', 'in_progress', 'complete'
         this.assignedSpiders = [];
         this.buildReversed = false; // true si se construye desde endPoint hacia startPoint
+
+        // Web física parcial que se construye progresivamente
+        this.partialWeb = null;
     }
 
     // Establecer dirección de construcción según posición de Worker
@@ -31,6 +34,22 @@ class WebOrder {
 
     addSilk(amount) {
         this.silkProgress += amount;
+
+        // Actualizar web física parcial basada en progreso
+        if (this.nearPoint && this.farPoint) {
+            const progress = Math.min(1, this.silkProgress / this.silkRequired);
+            const dx = this.farPoint.x - this.nearPoint.x;
+            const dy = this.farPoint.y - this.nearPoint.y;
+
+            const currentEndPoint = {
+                x: this.nearPoint.x + dx * progress,
+                y: this.nearPoint.y + dy * progress
+            };
+
+            // Crear o actualizar web parcial
+            this.partialWeb = new Web(this.nearPoint, currentEndPoint);
+        }
+
         if (this.silkProgress >= this.silkRequired) {
             this.status = 'complete';
             return true; // Orden completada
@@ -236,6 +255,14 @@ class WebManager {
 
     // Encontrar web en un punto dado (para detección de superficie transitable)
     findWebAt(x, y) {
+        // 1. Comprobar webs parciales de órdenes en progreso
+        for (const order of this.orders) {
+            if (order.partialWeb && order.partialWeb.isNear(x, y, 10)) {
+                return order.partialWeb;
+            }
+        }
+
+        // 2. Comprobar webs completas
         for (const web of this.webs) {
             if (web.isNear(x, y, 10)) {
                 return web;
