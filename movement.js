@@ -63,26 +63,48 @@ class MovementSystem {
     }
 
     getSurfaceAt(x, y) {
-        // 1. Comprobar webs construidas primero
+        // Detectar TODAS las superficies disponibles (sin prioridad)
+        const availableSurfaces = [];
+
+        // Comprobar ramas
+        const branch = this.findNearestBranch(x, y);
+        if (branch) {
+            availableSurfaces.push({ type: 'branch', branch: branch });
+        }
+
+        // Comprobar tronco
+        if (this.isOnTrunk(x, y)) {
+            availableSurfaces.push({ type: 'trunk' });
+        }
+
+        // Comprobar webs
         if (this.webManager) {
             const web = this.webManager.findWebAt(x, y);
             if (web) {
-                return { type: 'web', web: web };
+                availableSurfaces.push({ type: 'web', web: web });
             }
         }
 
-        // 2. Comprobar ramas
-        const branch = this.findNearestBranch(x, y);
-        if (branch) {
-            return { type: 'branch', branch: branch };
+        // Si no hay superficies, retornar none
+        if (availableSurfaces.length === 0) {
+            return { type: 'none' };
         }
 
-        // 3. Comprobar tronco
-        if (this.isOnTrunk(x, y)) {
-            return { type: 'trunk' };
+        // Si solo hay una superficie, retornarla
+        if (availableSurfaces.length === 1) {
+            return availableSurfaces[0];
         }
 
-        return { type: 'none' };
+        // Si hay múltiples superficies: elección procedural
+        // Retornar la primera que NO sea web (permite salir de webs)
+        for (const surface of availableSurfaces) {
+            if (surface.type !== 'web') {
+                return surface;
+            }
+        }
+
+        // Si todas son webs, retornar la primera
+        return availableSurfaces[0];
     }
 
     constrainToSurface(spider) {
