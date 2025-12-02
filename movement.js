@@ -279,33 +279,9 @@ class SpiderController {
             const branchEndY = branch.startY + Math.sin(angle) * branch.length;
 
             const distToEnd = Math.hypot(this.spider.x - branchEndX, this.spider.y - branchEndY);
-            const distToStart = Math.hypot(this.spider.x - branch.startX, this.spider.y - branch.startY);
 
-            // Si está muy cerca del inicio, redirigir hacia el centro del tronco para salir de la rama
-            // Umbral de 50px para asegurar que escape del radio de detección de rama (45px)
-            if (distToStart < 50) {
-                // Calcular centro del tronco
-                const trunkCenterX = this.movement.tree.x + this.movement.tree.trunkWidth / 2;
-                const trunkCenterY = this.movement.tree.y + this.movement.tree.trunkHeight / 2;
-
-                // Dirigirse hacia el centro del tronco
-                const angleToCenter = Math.atan2(trunkCenterY - this.spider.y, trunkCenterX - this.spider.x);
-                this.angle = angleToCenter;
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-
-                // Movimiento hacia el tronco
-                this.spider.x += this.vx;
-                this.spider.y += this.vy;
-
-                // Actualizar velocidad para animación de patas
-                this.spider.velocity = this.vx;
-                this.spider.velocityY = this.vy;
-
-                // NO constrain - dejar que salga de la rama
-                return;
-            } else if (distToEnd < 20) {
-                // Llegó al final - invertir dirección completamente
+            // Si llegó al final, invertir dirección
+            if (distToEnd < 20) {
                 this.angle = angle + Math.PI; // 180 grados
                 this.vx = Math.cos(this.angle) * this.speed;
                 this.vy = Math.sin(this.angle) * this.speed;
