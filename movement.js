@@ -271,23 +271,7 @@ class SpiderController {
             this.spider.y = Math.max(trunkTop, Math.min(trunkBottom, this.spider.y));
 
         } else if (surface.type === 'branch') {
-            const branch = surface.branch;
-            const angle = branch.angle;
-
-            // Calcular posiciones de extremos
-            const branchEndX = branch.startX + Math.cos(angle) * branch.length;
-            const branchEndY = branch.startY + Math.sin(angle) * branch.length;
-
-            const distToEnd = Math.hypot(this.spider.x - branchEndX, this.spider.y - branchEndY);
-
-            // Si llegó al final, invertir dirección
-            if (distToEnd < 20) {
-                this.angle = angle + Math.PI; // 180 grados
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-            }
-
-            // Movimiento normal
+            // Worker vagando sobre rama - movimiento aleatorio
             this.spider.x += this.vx;
             this.spider.y += this.vy;
         } else if (surface.type === 'web') {
