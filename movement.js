@@ -186,8 +186,12 @@ class SpiderController {
                 return false;
             }
         } else {
-            // Sin silk, abandonar tarea
+            // Sin silk - abandonar construcción y darse la vuelta para vagar
             this.spider.currentTask = null;
+            // Invertir dirección 180 grados
+            this.angle += Math.PI;
+            this.vx = Math.cos(this.angle) * this.speed;
+            this.vy = Math.sin(this.angle) * this.speed;
             return false;
         }
 
