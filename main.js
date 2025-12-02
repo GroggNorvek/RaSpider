@@ -18,18 +18,23 @@ const nestCenterX = tree.nest.x;
 const nestCenterY = tree.nest.y + 100; // Un poco abajo del centro
 const matriarch = new Spider(nestCenterX, nestCenterY, 'Matriarch');
 
-// Crear Worker en el tronco
-const worker = new Spider(canvas.width * 0.83, 300, 'Worker');
+// Crear 3 Workers en el tronco
+const workers = [
+    new Spider(canvas.width * 0.83, 250, 'Worker'),
+    new Spider(canvas.width * 0.83, 350, 'Worker'),
+    new Spider(canvas.width * 0.83, 450, 'Worker')
+];
+
+// Array de arañas para el sistema de webs
+const spiders = [matriarch, ...workers];
 
 // Crear sistema de movimiento
 const movementSystem = new MovementSystem(tree);
 const matriarchController = new MatriarchController(matriarch, movementSystem, tree);
-const workerController = new SpiderController(worker, movementSystem);
 
-// Array de arañas para el sistema de webs
-const spiders = [matriarch, worker];
+// Crear controladores para cada Worker
+const workerControllers = workers.map(worker => new SpiderController(worker, movementSystem));
 
-// Crear sistema de telas de araña (pasar array de arañas)
 const webManager = new WebManager(tree, spiders);
 const inputHandler = new InputHandler(canvas, webManager);
 
@@ -56,14 +61,16 @@ function gameLoop() {
 
     // Actualizar controladores
     matriarchController.update();
-    workerController.update();
+    workerControllers.forEach(controller => controller.update());
 
     // Actualizar y dibujar arañas
     matriarch.update();
     matriarch.draw(ctx);
 
-    worker.update();
-    worker.draw(ctx);
+    workers.forEach(worker => {
+        worker.update();
+        worker.draw(ctx);
+    });
 
     requestAnimationFrame(gameLoop);
 }
@@ -72,7 +79,7 @@ function gameLoop() {
 console.log('🕷️ Colony Sim iniciado');
 console.log('🌳 Árbol procedural generado con', tree.branches.length, 'ramas');
 console.log('👑 Matriarch (grande) en el nido');
-console.log('🐜 Worker (pequeña) en el tronco');
+console.log(`🐜 ${workers.length} Workers (pequeñas) en el tronco`);
 console.log('🚶 Sistema de movimiento activado');
 console.log('🕸️ Sistema de telas de araña activado');
 gameLoop();
