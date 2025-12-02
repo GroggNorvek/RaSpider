@@ -235,6 +235,14 @@ class SpiderController {
         this.spider.velocity = this.vx;
         this.spider.velocityY = this.vy;
 
+        // LÍMITES DE PANTALLA - evitar que Worker salga del canvas
+        const canvasWidth = 1200; // Del main.js
+        const canvasHeight = 800;
+        const margin = 10; // Pequeño margen
+
+        this.spider.x = Math.max(margin, Math.min(this.spider.x, canvasWidth - margin));
+        this.spider.y = Math.max(margin, Math.min(this.spider.y, canvasHeight - margin));
+
         // Salida especial solo para webs parciales por nearPoint
         if (surface.type === 'web') {
             const web = surface.web;
