@@ -209,6 +209,13 @@ class WebManager {
             order.setBuildDirection(nearestSpider.x, nearestSpider.y);
 
             nearestSpider.currentTask = order;
+
+            // Calcular y almacenar nearPoint/farPoint FIJOS - evita flip a mitad de camino
+            const distToStart = Math.hypot(nearestSpider.x - order.startPoint.x, nearestSpider.y - order.startPoint.y);
+            const distToEnd = Math.hypot(nearestSpider.x - order.endPoint.x, nearestSpider.y - order.endPoint.y);
+            order.nearPoint = distToStart < distToEnd ? order.startPoint : order.endPoint;
+            order.farPoint = distToStart < distToEnd ? order.endPoint : order.startPoint;
+
             order.assignedSpiders.push(nearestSpider);
             order.status = 'in_progress';
         }

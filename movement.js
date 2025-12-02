@@ -142,11 +142,10 @@ class SpiderController {
             return false;
         }
 
-        // Determinar extremo más cercano (punto de inicio)
-        const distToStart = Math.hypot(this.spider.x - task.startPoint.x, this.spider.y - task.startPoint.y);
-        const distToEnd = Math.hypot(this.spider.x - task.endPoint.x, this.spider.y - task.endPoint.y);
-        const nearPoint = distToStart < distToEnd ? task.startPoint : task.endPoint;
-        const farPoint = distToStart < distToEnd ? task.endPoint : task.startPoint;
+        // Usar nearPoint y farPoint almacenados en la tarea (calculados al inicio)
+        // Esto evita que se intercambien a mitad de camino causando bloqueo
+        const nearPoint = task.nearPoint;
+        const farPoint = task.farPoint;
 
         // Calcular punto de progreso en la web
         const progress = task.silkProgress / task.silkRequired;
