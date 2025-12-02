@@ -315,7 +315,12 @@ class SpiderController {
             this.spider.x += this.vx;
             this.spider.y += this.vy;
         } else if (surface.type === 'web') {
-            // Worker vagando sobre web - moverse libremente
+            // Worker vagando sobre web - añadir cambios aleatorios de dirección
+            // Esto permite que eventualmente encuentre la salida en nearPoint
+            this.angle += (Math.random() - 0.5) * 0.2; // Pequeños cambios aleatorios
+            this.vx = Math.cos(this.angle) * this.speed;
+            this.vy = Math.sin(this.angle) * this.speed;
+
             this.spider.x += this.vx;
             this.spider.y += this.vy;
             this.spider.velocity = this.vx;
