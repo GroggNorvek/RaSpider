@@ -325,8 +325,7 @@ class SpiderController {
             this.spider.y += this.vy;
             this.spider.velocity = this.vx;
             this.spider.velocityY = this.vy;
-            // NO aplicar constrainToSurface - permite salir de la web
-            return;
+            // APLICAR constrainToSurface para mantener Worker sobre la web
         }
 
         this.movement.constrainToSurface(this.spider);
