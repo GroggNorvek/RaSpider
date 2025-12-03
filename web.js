@@ -61,7 +61,11 @@ class WebOrder {
     draw(ctx) {
         // Dibujar orden como línea discontinua orgánica
         ctx.save();
-        ctx.strokeStyle = 'rgba(192, 192, 192, 0.5)';
+
+        // Color según tipo: AMARILLO para NEST, gris para REGULAR
+        ctx.strokeStyle = this.webType === 'NEST'
+            ? 'rgba(255, 215, 0, 0.6)'  // Amarillo/dorado para WebNido
+            : 'rgba(192, 192, 192, 0.5)'; // Gris para web normal
         ctx.setLineDash([10, 5]);
         ctx.lineWidth = 0.7; // 1/3 del grosor original
 
