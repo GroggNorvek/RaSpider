@@ -502,7 +502,7 @@ class InputHandler {
                 // WebNido solo si AMBOS puntos están en el nido
                 const webType = (startInNest && endInNest) ? 'NEST' : 'REGULAR';
 
-                console.log(`WebType: ${webType}, Start:(${this.dragStart.x},${this.dragStart.y}) inNest:${startInNest}, End:(${pos.x},${pos.y}) inNest:${endInNest}, NestCenter:(${nestCenterX},${nestCenterY}), NestSize:(${nest.width}x${nest.height})`);
+                console.log(`WebType: ${webType}, Start:(${this.dragStart.x},${this.dragStart.y}) inNest:${startInNest}, End:(${pos.x},${pos.y}) inNest:${endInNest}, NestCenter:(${nestCenterX},${nestCenterY}), NestSize:(${nest.width}x${nest.height}), TreeX:${this.webManager.tree.x}, TrunkWidth:${this.webManager.tree.trunkWidth}`);
 
                 // Crear orden de construcción
                 this.webManager.createOrder(this.dragStart, endSurface.point, webType);
