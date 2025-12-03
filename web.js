@@ -187,6 +187,63 @@ class Web {
     }
 }
 
+// Clase para WebNido - almacenamiento de mosquitos en el nido
+class WebNido extends Web {
+    constructor(startPoint, endPoint) {
+        super(startPoint, endPoint);
+        this.type = 'NEST_WEB';
+        this.storedMosquitos = [];
+        this.capacity = 5;
+        this.thickness = 1.5; // Más gruesa que web normal
+    }
+
+    addMosquito(mosquito) {
+        if (!this.isFull()) {
+            this.storedMosquitos.push(mosquito);
+            mosquito.state = 'STORED';
+            mosquito.storageWeb = this;
+            return true;
+        }
+        return false;
+    }
+
+    isFull() {
+        return this.storedMosquitos.length >= this.capacity;
+    }
+
+    draw(ctx) {
+        ctx.save();
+        // Color blanco/marfil para WebNido
+        ctx.strokeStyle = 'rgba(255, 248, 220, 0.9)';
+        ctx.setLineDash([]);
+        ctx.lineWidth = this.thickness;
+
+        const dx = this.endPoint.x - this.startPoint.x;
+        const dy = this.endPoint.y - this.startPoint.y;
+        const length = Math.hypot(dx, dy);
+        const sag = length * 0.08;
+
+        const midX = (this.startPoint.x + this.endPoint.x) / 2;
+        const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
+
+        const vibrationOffset = this.vibration;
+
+        ctx.beginPath();
+        ctx.moveTo(this.startPoint.x, this.startPoint.y);
+        ctx.quadraticCurveTo(midX + vibrationOffset, midY + vibrationOffset, this.endPoint.x, this.endPoint.y);
+        ctx.stroke();
+
+        // Mostrar contador de mosquitos almacenados
+        if (this.storedMosquitos.length > 0) {
+            ctx.fillStyle = this.isFull() ? '#FFD700' : '#FFF';
+            ctx.font = '10px Arial';
+            ctx.fillText(`${this.storedMosquitos.length}/${this.capacity}`, midX + 5, midY - 5);
+        }
+
+        ctx.restore();
+    }
+}
+
 // Clase para gestionar todas las órdenes y webs
 class WebManager {
     constructor(tree, spiders = []) {
