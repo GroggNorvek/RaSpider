@@ -483,10 +483,14 @@ class InputHandler {
             const endSurface = this.webManager.findSurfaceAt(pos.x, pos.y);
 
             if (endSurface && this.dragStart) {
-                // Detectar si está en área del nido
+                // Detectar si está en área del nido (elipse con 10% margen)
                 const nest = this.webManager.tree.nest;
-                const distToNest = Math.hypot(pos.x - nest.x, pos.y - (nest.y + 100));
-                const inNestArea = distToNest < nest.radius;
+                const nestCenterX = nest.x + nest.width / 2;
+                const nestCenterY = nest.y + nest.height / 2;
+                const margin = 1.1; // 10% más grande para evitar missclick
+                const dx = (pos.x - nestCenterX) / ((nest.width / 2) * margin);
+                const dy = (pos.y - nestCenterY) / ((nest.height / 2) * margin);
+                const inNestArea = (dx * dx + dy * dy) <= 1;
 
                 // Determinar tipo de web
                 const webType = inNestArea ? 'NEST' : 'REGULAR';
