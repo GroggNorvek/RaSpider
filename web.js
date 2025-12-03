@@ -254,8 +254,9 @@ class WebManager {
         this.webs = [];
     }
 
-    createOrder(startPoint, endPoint) {
+    createOrder(startPoint, endPoint, webType = 'REGULAR') {
         const order = new WebOrder(startPoint, endPoint);
+        order.webType = webType;
         this.orders.push(order);
 
         // Intentar asignar araña inmediatamente
