@@ -485,8 +485,6 @@ class InputHandler {
             if (endSurface && this.dragStart) {
                 // Detectar si AMBOS puntos están en área del nido
                 const nest = this.webManager.tree.nest;
-                const nestCenterX = nest.x; // Ya es el centro
-                const nestCenterY = nest.y; // Ya es el centro
                 const margin = 1.1; // 10% más grande
 
                 // Verificar punto inicial
