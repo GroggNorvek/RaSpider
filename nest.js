@@ -5,17 +5,17 @@
 
 class Nest {
     constructor(tree) {
-        // Calcular posición centrada en el tronco
-        const trunkCenterX = tree.x + tree.trunkWidth / 2;
-        const trunkCenterY = tree.trunkHeight / 2;
+        // Usar las MISMAS coordenadas que tree.drawNest() (línea 249-252)
+        const nestX = tree.x + tree.trunkWidth * 0.6;
+        const nestY = tree.trunkHeight * 0.35;
 
         // Centro del nido
-        this.x = trunkCenterX;
-        this.y = trunkCenterY;
+        this.x = nestX;
+        this.y = nestY;
 
         // Tamaño del nido
-        this.width = tree.trunkWidth * 0.4;  // 40% del ancho del tronco
-        this.height = tree.trunkHeight * 0.3; // 30% de la altura del tronco
+        this.width = tree.trunkWidth * 0.5;
+        this.height = tree.trunkHeight * 0.5;
     }
 
     draw(ctx) {
