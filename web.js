@@ -247,8 +247,9 @@ class WebNido extends Web {
 
 // Clase para gestionar todas las órdenes y webs
 class WebManager {
-    constructor(tree, spiders = []) {
+    constructor(tree, nest, spiders = []) {
         this.tree = tree;
+        this.nest = nest;
         this.spiders = spiders; // Array de arañas disponibles
         this.orders = [];
         this.webs = [];
