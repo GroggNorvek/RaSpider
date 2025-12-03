@@ -484,25 +484,16 @@ class InputHandler {
 
             if (endSurface && this.dragStart) {
                 // Detectar si AMBOS puntos están en área del nido
-                const nest = this.webManager.nest;
-                const margin = 1.1; // 10% más grande
-                const nestCenterX = nest.x;
-                const nestCenterY = nest.y;
+                const margin = 1.1; // 10% más grande para evitar missclick
 
-                // Verificar punto inicial
-                const dx1 = (this.dragStart.x - nestCenterX) / ((nest.width / 2) * margin);
-                const dy1 = (this.dragStart.y - nestCenterY) / ((nest.height / 2) * margin);
-                const startInNest = (dx1 * dx1 + dy1 * dy1) <= 1;
-
-                // Verificar punto final
-                const dx2 = (pos.x - nestCenterX) / ((nest.width / 2) * margin);
-                const dy2 = (pos.y - nestCenterY) / ((nest.height / 2) * margin);
-                const endInNest = (dx2 * dx2 + dy2 * dy2) <= 1;
+                // Usar método del nest para verificar puntos
+                const startInNest = this.webManager.nest.isPointInside(this.dragStart.x, this.dragStart.y, margin);
+                const endInNest = this.webManager.nest.isPointInside(pos.x, pos.y, margin);
 
                 // WebNido solo si AMBOS puntos están en el nido
                 const webType = (startInNest && endInNest) ? 'NEST' : 'REGULAR';
 
-                console.log(`WebType: ${webType}, Start:(${this.dragStart.x},${this.dragStart.y}) inNest:${startInNest}, End:(${pos.x},${pos.y}) inNest:${endInNest}, NestCenter:(${nestCenterX},${nestCenterY}), NestSize:(${nest.width}x${nest.height}), TreeX:${this.webManager.tree.x}, TrunkWidth:${this.webManager.tree.trunkWidth}`);
+                console.log(`WebType: ${webType}, Start:(${this.dragStart.x},${this.dragStart.y}) inNest:${startInNest}, End:(${pos.x},${pos.y}) inNest:${endInNest}`);
 
                 // Crear orden de construcción
                 this.webManager.createOrder(this.dragStart, endSurface.point, webType);
