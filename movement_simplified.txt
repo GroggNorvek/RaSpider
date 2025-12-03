@@ -1,0 +1,9 @@
+Reemplaza líneas 318-357 con esto:
+
+            // Worker vagando sobre web - moverse libremente
+            // Con movimiento aleatorio, eventualmente encontrará salida natural
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+            this.spider.velocity = this.vx;
+            this.spider.velocityY = this.vy;
+            // NO aplicar constrainToSurface - permite salir de la web

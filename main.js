@@ -35,7 +35,7 @@ const matriarchController = new MatriarchController(matriarch, movementSystem, t
 // Crear controladores para cada Worker
 const workerControllers = workers.map(worker => new SpiderController(worker, movementSystem));
 
-const webManager = new WebManager(tree, spiders);
+const webManager = new WebManager(tree, nest, spiders);
 const inputHandler = new InputHandler(canvas, webManager);
 
 // Crear sistema de mosquitos (presas)
