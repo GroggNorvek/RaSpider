@@ -66,12 +66,17 @@ class Tree {
             thickness: 20
         });
 
-        // Propiedades del nido (para restricción de Matriarch)
+        // Propiedades del nido (x,y son el CENTRO para coincidir con drawNest)
+        const nestLeft = this.x + this.trunkWidth * 0.6;
+        const nestTop = this.trunkHeight * 0.35;
+        const nestW = this.trunkWidth * 0.5;
+        const nestH = this.trunkHeight * 0.5;
+
         this.nest = {
-            x: this.x + this.trunkWidth * 0.6,
-            y: this.trunkHeight * 0.35,
-            width: this.trunkWidth * 0.5,
-            height: this.trunkHeight * 0.5
+            x: nestLeft,           // Centro X (como en drawNest línea 254)
+            y: nestTop,            // Centro Y (como en drawNest línea 255)
+            width: nestW,
+            height: nestH
         };
     }
 
