@@ -13,9 +13,12 @@ canvas.height = 800;
 // Crear árbol (tercio derecho)
 const tree = new Tree(canvas.width, canvas.height);
 
+// Crear nido (dentro del tronco)
+const nest = new Nest(tree);
+
 // Crear Matriarch en el nido
-const nestCenterX = tree.nest.x;
-const nestCenterY = tree.nest.y + 100; // Un poco abajo del centro
+const nestCenterX = nest.x;
+const nestCenterY = nest.y;
 const matriarch = new Spider(nestCenterX, nestCenterY, 'Matriarch');
 
 // Crear 3 Workers en el tronco
@@ -54,6 +57,9 @@ function gameLoop() {
 
     // Dibujar árbol
     tree.draw(ctx);
+
+    // Dibujar nido (ANTES de las webs para que las webs aparezcan encima)
+    nest.draw(ctx);
 
     // Actualizar y dibujar sistema de webs
     webManager.update();
