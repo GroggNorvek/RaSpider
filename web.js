@@ -483,8 +483,16 @@ class InputHandler {
             const endSurface = this.webManager.findSurfaceAt(pos.x, pos.y);
 
             if (endSurface && this.dragStart) {
+                // Detectar si está en área del nido
+                const nest = this.webManager.tree.nest;
+                const distToNest = Math.hypot(pos.x - nest.x, pos.y - (nest.y + 100));
+                const inNestArea = distToNest < nest.radius;
+
+                // Determinar tipo de web
+                const webType = inNestArea ? 'NEST' : 'REGULAR';
+
                 // Crear orden de construcción
-                this.webManager.createOrder(this.dragStart, endSurface.point);
+                this.webManager.createOrder(this.dragStart, endSurface.point, webType);
             }
 
             this.isDragging = false;
