@@ -523,7 +523,17 @@ class InputHandler {
         // Dibujar preview durante el drag con estética orgánica
         if (this.isDragging && this.dragStart && this.dragCurrent) {
             ctx.save();
-            ctx.strokeStyle = 'rgba(192, 192, 192, 0.3)';
+
+            // Detectar si estamos arrastrando dentro del nest
+            const margin = 1.1;
+            const startInNest = this.webManager.nest.isPointInside(this.dragStart.x, this.dragStart.y, margin);
+            const currentInNest = this.webManager.nest.isPointInside(this.dragCurrent.x, this.dragCurrent.y, margin);
+            const isNestWeb = startInNest && currentInNest;
+
+            // Color según si es WebNido o web normal
+            ctx.strokeStyle = isNestWeb
+                ? 'rgba(255, 215, 0, 0.5)'    // Amarillo para WebNido
+                : 'rgba(192, 192, 192, 0.3)'; // Gris para web normal
             ctx.setLineDash([5, 5]);
             ctx.lineWidth = 0.7; // Mismo grosor que las webs
 
