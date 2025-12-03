@@ -38,6 +38,9 @@ const workerControllers = workers.map(worker => new SpiderController(worker, mov
 const webManager = new WebManager(tree, spiders);
 const inputHandler = new InputHandler(canvas, webManager);
 
+// Crear sistema de mosquitos (presas)
+const mosquitoManager = new MosquitoManager(canvas.width, canvas.height, webManager);
+
 // Conectar webManager con movementSystem para detección de webs
 movementSystem.setWebManager(webManager);
 
@@ -55,6 +58,10 @@ function gameLoop() {
     // Actualizar y dibujar sistema de webs
     webManager.update();
     webManager.draw(ctx);
+
+    // Actualizar y dibujar mosquitos
+    mosquitoManager.update();
+    mosquitoManager.draw(ctx);
 
     // Dibujar preview del input
     inputHandler.draw(ctx);
