@@ -8,6 +8,7 @@ class WebOrder {
     constructor(startPoint, endPoint) {
         this.startPoint = startPoint; // {x, y, surface}
         this.endPoint = endPoint;     // {x, y, surface}
+        this.webType = 'REGULAR';     // 'REGULAR' or 'NEST'
 
         // Calcular longitud y silk requerida
         this.length = Math.hypot(
