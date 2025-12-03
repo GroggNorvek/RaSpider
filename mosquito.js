@@ -66,8 +66,8 @@ class Mosquito {
         ctx.fill();
 
         // Wings (simple lines)
-        ctx.strokeStyle = 'rgba(135, 206, 235, 0.5)'; // Celeste semitransparente
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'rgba(135, 206, 235, 0.8)'; // Más opaco (era 0.5)
+        ctx.lineWidth = 1.2; // Más grueso (era 0.5)
 
         // Left wing
         ctx.beginPath();
