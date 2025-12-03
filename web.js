@@ -304,7 +304,10 @@ class WebManager {
     }
 
     completeOrder(order) {
-        const web = new Web(order.startPoint, order.endPoint);
+        // Crear WebNido o Web según tipo
+        const web = (order.webType === 'NEST')
+            ? new WebNido(order.startPoint, order.endPoint)
+            : new Web(order.startPoint, order.endPoint);
         this.webs.push(web);
 
         // Eliminar orden de la lista
