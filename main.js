@@ -57,6 +57,17 @@ function gameLoop() {
 
     // Actualizar y dibujar sistema de webs
     webManager.update();
+
+    // Actualizar vibración de webs según mosquitos atrapados
+    for (const web of webManager.webs) {
+        web.vibration = 0; // Reset vibration
+    }
+    for (const mosquito of mosquitoManager.mosquitos) {
+        if (mosquito.state === 'TRAPPED' && mosquito.trappedWeb) {
+            mosquito.trappedWeb.vibration = Math.sin(Date.now() * 0.02) * 1.5;
+        }
+    }
+
     webManager.draw(ctx);
 
     // Actualizar y dibujar mosquitos

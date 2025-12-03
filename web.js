@@ -115,6 +115,7 @@ class Web {
         this.endPoint = { x: endPoint.x, y: endPoint.y };
         this.thickness = 0.7; // 1/3 del grosor original (era 2)
         this.strength = 100;
+        this.vibration = 0; // Vibración causada por presas atrapadas
     }
 
     draw(ctx) {
@@ -132,9 +133,12 @@ class Web {
         const midX = (this.startPoint.x + this.endPoint.x) / 2;
         const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
 
+        // Aplicar vibración si existe
+        const vibrationOffset = this.vibration;
+
         ctx.beginPath();
         ctx.moveTo(this.startPoint.x, this.startPoint.y);
-        ctx.quadraticCurveTo(midX, midY, this.endPoint.x, this.endPoint.y);
+        ctx.quadraticCurveTo(midX + vibrationOffset, midY + vibrationOffset, this.endPoint.x, this.endPoint.y);
         ctx.stroke();
 
         ctx.restore();
