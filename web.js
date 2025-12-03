@@ -364,7 +364,12 @@ class WebManager {
             }
         }
 
-        // 4. Comprobar EXTREMO IZQUIERDO DEL TRONCO (solo un margen de 30px)
+        // 4. Comprobar NIDO (área clickeable para WebNidos)
+        if (this.nest.isPointInside(x, y, 1.0)) {
+            return { type: 'nest', nest: this.nest, point: { x, y } };
+        }
+
+        // 5. Comprobar EXTREMO IZQUIERDO DEL TRONCO (solo un margen de 30px)
         const trunkLeft = this.tree.x;
         const trunkEdgeMargin = 30; // Solo 30px desde el borde izquierdo
         if (x >= trunkLeft && x <= (trunkLeft + trunkEdgeMargin) && y >= 0 && y <= this.tree.trunkHeight) {
