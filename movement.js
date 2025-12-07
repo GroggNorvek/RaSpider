@@ -1,12 +1,12 @@
-/**
- * Movement System - Sistema de navegación por árbol
+﻿/**
+ * Movement System - Sistema de navegaciÃ³n por Ã¡rbol
  */
 
 class MovementSystem {
     constructor(tree) {
         this.tree = tree;
-        this.webManager = null; // Se establecerá después
-        this.navMesh = null; // Se establecerá después
+        this.webManager = null; // Se establecerÃ¡ despuÃ©s
+        this.navMesh = null; // Se establecerÃ¡ despuÃ©s
     }
 
     setWebManager(webManager) {
@@ -42,7 +42,7 @@ class MovementSystem {
         const closestY = branch.startY + t * dy;
         const distance = Math.hypot(x - closestX, y - closestY);
 
-        // Umbral ajustado: solo thickness/2 + margen pequeño (5px en lugar de 10)
+        // Umbral ajustado: solo thickness/2 + margen pequeÃ±o (5px en lugar de 10)
         // Esto previene que ramas finas bloqueen el movimiento
         return distance < branch.thickness / 2 + 5;
     }
@@ -100,7 +100,7 @@ class MovementSystem {
             return availableSurfaces[0];
         }
 
-        // Si hay múltiples superficies: elección procedural
+        // Si hay mÃºltiples superficies: elecciÃ³n procedural
         // Retornar la primera que NO sea web (permite salir de webs)
         for (const surface of availableSurfaces) {
             if (surface.type !== 'web') {
@@ -135,7 +135,7 @@ class MovementSystem {
             spider.x = branch.startX + t * dx;
             spider.y = branch.startY + t * dy;
         } else if (surface.type === 'web') {
-            // Constrain a la web - proyectar sobre la línea
+            // Constrain a la web - proyectar sobre la lÃ­nea
             const web = surface.web;
             const closest = web.getClosestPoint(spider.x, spider.y);
             spider.x = closest.x;
@@ -149,10 +149,10 @@ class SpiderController {
         this.spider = spider;
         this.movement = movementSystem;
 
-        // Worker: 3x más rápido
+        // Worker: 3x mÃ¡s rÃ¡pido
         this.speed = 0.9;
 
-        // Dirección 2D aleatoria
+        // DirecciÃ³n 2D aleatoria
         this.angle = Math.random() * Math.PI * 2;
         this.vx = Math.cos(this.angle) * this.speed;
         this.vy = Math.sin(this.angle) * this.speed;
@@ -164,7 +164,7 @@ class SpiderController {
         this.retargetTimer = 0;
         this.retargetInterval = 180; // Cambiar objetivo cada 3 segundos (60fps)
 
-        // Pathfinding para construcción de webs
+        // Pathfinding para construcciÃ³n de webs
         this.constructionPath = null;
         this.constructionPathIndex = 0;
     }
@@ -174,7 +174,7 @@ class SpiderController {
 
         const task = this.spider.currentTask;
 
-        // Si la tarea ya está completa, liberar la araña
+        // Si la tarea ya estÃ¡ completa, liberar la araÃ±a
         if (task.status === 'complete') {
             this.spider.currentTask = null;
             this.constructionPath = null;
@@ -192,28 +192,28 @@ class SpiderController {
         const dx = farPoint.x - nearPoint.x;
         const dy = farPoint.y - nearPoint.y;
 
-        // Punto objetivo = donde debería estar Worker según progreso
+        // Punto objetivo = donde deberÃ­a estar Worker segÃºn progreso
         const targetX = nearPoint.x + dx * progress;
         const targetY = nearPoint.y + dy * progress;
         const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
 
-        // Si está lejos del punto de progreso, moverse hacia allí
+        // Si estÃ¡ lejos del punto de progreso, moverse hacia allÃ­
         if (dist > 20) {
-            // ESTRATEGIA HÍBRIDA:
-            // - Si está LEJOS (>100px): Intentar usar NavMesh
-            // - Si está CERCA (<100px) o NavMesh falla: Movimiento directo
+            // ESTRATEGIA HÃBRIDA:
+            // - Si estÃ¡ LEJOS (>100px): Intentar usar NavMesh
+            // - Si estÃ¡ CERCA (<100px) o NavMesh falla: Movimiento directo
 
-            const useDirect = dist < 100; // Umbral para movimiento directo
+            const distToNear = Math.hypot(this.spider.x - nearPoint.x, this.spider.y - nearPoint.y); // Umbral para movimiento directo
 
-            if (!useDirect && this.movement.navMesh) {
+            if (distToNear > 30 && this.movement.navMesh) {
                 // Intentar usar NavMesh para distancias largas
-                // Si no tenemos path o el objetivo cambió, recalcular
+                // Si no tenemos path o el objetivo cambiÃ³, recalcular
                 if (!this.constructionPath || this.constructionPath.length === 0) {
                     const currentNode = this.movement.navMesh.findNearestNode(this.spider.x, this.spider.y);
-                    const targetNode = this.movement.navMesh.findNearestNode(targetX, targetY);
+                    const nearNode = this.movement.navMesh.findNearestNode(nearPoint.x, nearPoint.y);
 
-                    if (currentNode && targetNode) {
-                        this.constructionPath = this.movement.navMesh.findPath(currentNode, targetNode);
+                    if (currentNode && nearNode) {
+                        this.constructionPath = this.movement.navMesh.findPath(currentNode, nearNode);
                         this.constructionPathIndex = 0;
                     } else {
                         // No se encontraron nodos - forzar movimiento directo
@@ -221,9 +221,9 @@ class SpiderController {
                     }
                 }
 
-                // Seguir el path si existe Y todavía estamos lejos
+                // Seguir el path si existe Y todavÃ­a estamos lejos
                 if (this.constructionPath && this.constructionPath.length > 0 &&
-                    this.constructionPathIndex < this.constructionPath.length && dist > 100) {
+                    this.constructionPathIndex < this.constructionPath.length) {
 
                     const pathTargetNode = this.constructionPath[this.constructionPathIndex];
                     const pathDx = pathTargetNode.x - this.spider.x;
@@ -245,14 +245,14 @@ class SpiderController {
                         this.spider.velocityY = this.vy;
                     }
 
-                    return true; // Está trabajando en la tarea
+                    return true; // EstÃ¡ trabajando en la tarea
                 } else {
-                    // Path completado o no válido - limpiar y usar movimiento directo
+                    // Path completado o no vÃ¡lido - limpiar y usar movimiento directo
                     this.constructionPath = null;
                 }
             }
 
-            // MOVIMIENTO DIRECTO (fallback o cuando está cerca)
+            // MOVIMIENTO DIRECTO (fallback o cuando estÃ¡ cerca)
             const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
             this.angle = angleToTarget;
             this.vx = Math.cos(this.angle) * this.speed;
@@ -266,7 +266,7 @@ class SpiderController {
             return true;
         }
 
-        // Está en posición sobre la web, aportar silk
+        // EstÃ¡ en posiciÃ³n sobre la web, aportar silk
         if (this.spider.silk > 0) {
             const silkContribution = Math.min(0.5, this.spider.silk); // 0.5 silk por frame
             this.spider.silk -= silkContribution;
@@ -283,7 +283,7 @@ class SpiderController {
             // Silk = 0: marcar orden como pending para que otra Worker pueda continuar
             if (task.silkProgress < task.silkRequired) {
                 task.status = 'pending';
-                // Limpiar lista de Workers asignadas para permitir reasignación
+                // Limpiar lista de Workers asignadas para permitir reasignaciÃ³n
                 task.assignedSpiders = [];
             }
             this.spider.currentTask = null;
@@ -302,7 +302,7 @@ class SpiderController {
             return;
         }
 
-        // NavMesh pathfinding si está disponible
+        // NavMesh pathfinding si estÃ¡ disponible
         if (this.movement.navMesh) {
             this.updateWithNavMesh();
         } else {
@@ -323,7 +323,7 @@ class SpiderController {
             const randomIndex = Math.floor(Math.random() * navMesh.walkableNodes.length);
             this.targetNode = navMesh.walkableNodes[randomIndex];
 
-            // Encontrar nodo más cercano a posición actual
+            // Encontrar nodo mÃ¡s cercano a posiciÃ³n actual
             const currentNode = navMesh.findNearestNode(this.spider.x, this.spider.y);
 
             if (currentNode && this.targetNode) {
@@ -379,10 +379,10 @@ class SpiderController {
         this.spider.velocity = this.vx;
         this.spider.velocityY = this.vy;
 
-        // LÍMITES DE PANTALLA - evitar que Worker salga del canvas
+        // LÃMITES DE PANTALLA - evitar que Worker salga del canvas
         const canvasWidth = 1200; // Del main.js
         const canvasHeight = 800;
-        const margin = 10; // Pequeño margen
+        const margin = 10; // PequeÃ±o margen
 
         this.spider.x = Math.max(margin, Math.min(this.spider.x, canvasWidth - margin));
         this.spider.y = Math.max(margin, Math.min(this.spider.y, canvasHeight - margin));
@@ -422,7 +422,7 @@ class MatriarchController {
     }
 
     update() {
-        // Movimiento aleatorio suave (LÓGICA ORIGINAL)
+        // Movimiento aleatorio suave (LÃ“GICA ORIGINAL)
         this.angle += (Math.random() - 0.5) * 0.15;
 
         const vx = Math.cos(this.angle) * this.speed;
@@ -459,3 +459,7 @@ class MatriarchController {
         }
     }
 }
+
+
+
+
