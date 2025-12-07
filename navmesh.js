@@ -78,7 +78,7 @@ class NavMesh {
             for (let y = 0; y < this.canvasHeight; y += this.nodeSpacing) {
                 const node = new NavNode(x, y);
                 this.nodes.push(node);
-                this.nodeGrid[${ x },${ y }] = node;
+                this.nodeGrid[`${x},${y}`] = node;
             }
         }
     }
