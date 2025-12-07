@@ -273,6 +273,16 @@ class SpiderController {
 
             const completed = task.addSilk(silkContribution);
 
+            // IMPORTANTE: Moverse hacia el punto de progreso mientras construye
+            if (!completed && dist > 5) {
+                const moveAngle = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
+                const moveSpeed = this.speed * 0.5; // Velocidad reducida durante construcciÃ³n
+                this.spider.x += Math.cos(moveAngle) * moveSpeed;
+                this.spider.y += Math.sin(moveAngle) * moveSpeed;
+                this.spider.velocity = Math.cos(moveAngle) * moveSpeed;
+                this.spider.velocityY = Math.sin(moveAngle) * moveSpeed;
+            }
+
             if (completed) {
                 this.spider.currentTask = null;
                 this.constructionPath = null;
