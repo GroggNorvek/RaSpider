@@ -197,11 +197,17 @@ class SpiderController {
         const targetY = nearPoint.y + dy * progress;
         const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
 
-        // Si está lejos del punto de progreso, moverse hacia allí USANDO NAVMESH
+        // Si está lejos del punto de progreso, moverse hacia allí
         if (dist > 20) {
-            // Si tenemos NavMesh, usar pathfinding; si no, movimiento directo como fallback
-            if (this.movement.navMesh) {
-                // Si no tenemos path o el objetivo cambió significativamente, recalcular
+            // ESTRATEGIA HÍBRIDA:
+            // - Si está LEJOS (>100px): Intentar usar NavMesh
+            // - Si está CERCA (<100px) o NavMesh falla: Movimiento directo
+
+            const useDirect = dist < 100; // Umbral para movimiento directo
+
+            if (!useDirect && this.movement.navMesh) {
+                // Intentar usar NavMesh para distancias largas
+                // Si no tenemos path o el objetivo cambió, recalcular
                 if (!this.constructionPath || this.constructionPath.length === 0) {
                     const currentNode = this.movement.navMesh.findNearestNode(this.spider.x, this.spider.y);
                     const targetNode = this.movement.navMesh.findNearestNode(targetX, targetY);
@@ -209,11 +215,16 @@ class SpiderController {
                     if (currentNode && targetNode) {
                         this.constructionPath = this.movement.navMesh.findPath(currentNode, targetNode);
                         this.constructionPathIndex = 0;
+                    } else {
+                        // No se encontraron nodos - forzar movimiento directo
+                        this.constructionPath = null;
                     }
                 }
 
-                // Seguir el path si existe
-                if (this.constructionPath && this.constructionPath.length > 0 && this.constructionPathIndex < this.constructionPath.length) {
+                // Seguir el path si existe Y todavía estamos lejos
+                if (this.constructionPath && this.constructionPath.length > 0 &&
+                    this.constructionPathIndex < this.constructionPath.length && dist > 100) {
+
                     const pathTargetNode = this.constructionPath[this.constructionPathIndex];
                     const pathDx = pathTargetNode.x - this.spider.x;
                     const pathDy = pathTargetNode.y - this.spider.y;
@@ -236,24 +247,23 @@ class SpiderController {
 
                     return true; // Está trabajando en la tarea
                 } else {
-                    // No hay path válido - recalcular en siguiente frame
+                    // Path completado o no válido - limpiar y usar movimiento directo
                     this.constructionPath = null;
-                    return true;
                 }
-            } else {
-                // Fallback: movimiento directo si no hay NavMesh
-                const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
-                this.angle = angleToTarget;
-                this.vx = Math.cos(this.angle) * this.speed;
-                this.vy = Math.sin(this.angle) * this.speed;
-
-                this.spider.x += this.vx;
-                this.spider.y += this.vy;
-                this.spider.velocity = this.vx;
-                this.spider.velocityY = this.vy;
-
-                return true;
             }
+
+            // MOVIMIENTO DIRECTO (fallback o cuando está cerca)
+            const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
+            this.angle = angleToTarget;
+            this.vx = Math.cos(this.angle) * this.speed;
+            this.vy = Math.sin(this.angle) * this.speed;
+
+            this.spider.x += this.vx;
+            this.spider.y += this.vy;
+            this.spider.velocity = this.vx;
+            this.spider.velocityY = this.vy;
+
+            return true;
         }
 
         // Está en posición sobre la web, aportar silk
