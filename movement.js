@@ -214,7 +214,7 @@ class SpiderController {
                     const targetNode = this.movement.navMesh.findNearestNode(targetX, targetY);
 
                     if (currentNode && targetNode) {
-                        this.constructionPath = this.movement.navMesh.findPath(currentNode, nearNode);
+                        this.constructionPath = this.movement.navMesh.findPath(currentNode, targetNode);
                         this.constructionPathIndex = 0;
                     } else {
                         // No se encontraron nodos - forzar movimiento directo
