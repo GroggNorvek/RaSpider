@@ -457,10 +457,16 @@ class NavMesh {
 
         const tempNodes = [];
 
-        // Crear nodos temporales en nearPoint y farPoint
-        for (const point of [order.startPoint, order.endPoint]) {
-            const x = Math.round(point.x / this.nodeSpacing) * this.nodeSpacing;
-            const y = Math.round(point.y / this.nodeSpacing) * this.nodeSpacing;
+        // Samplear la línea COMPLETA de la WebOrder (como addWebToMesh)
+        const dx = order.endPoint.x - order.startPoint.x;
+        const dy = order.endPoint.y - order.startPoint.y;
+        const length = Math.hypot(dx, dy);
+        const steps = Math.ceil(length / this.nodeSpacing);
+
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = Math.round((order.startPoint.x + dx * t) / this.nodeSpacing) * this.nodeSpacing;
+            const y = Math.round((order.startPoint.y + dy * t) / this.nodeSpacing) * this.nodeSpacing;
 
             let node = this.nodeGrid[`${x},${y}`];
             if (!node) {
