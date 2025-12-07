@@ -267,7 +267,12 @@ class WebManager {
     createOrder(startPoint, endPoint, webType = 'REGULAR') {
         const order = new WebOrder(startPoint, endPoint);
         order.webType = webType;
-        this.orders.push(order);`r`n`r`n        // AÃ±adir construcciÃ³n temporal al NavMesh`r`n        if (this.navMesh) {`r`n            this.navMesh.addTemporaryConstructionSite(order);`r`n        }
+        this.orders.push(order);
+
+        // Añadir construcción temporal al NavMesh
+        if (this.navMesh) {
+            this.navMesh.addTemporaryConstructionSite(order);
+        }
 
         // Intentar asignar araÃ±a inmediatamente
         this.assignSpiderToOrder(order);
