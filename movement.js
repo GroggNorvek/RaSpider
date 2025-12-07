@@ -252,17 +252,9 @@ class SpiderController {
                 }
             }
 
-            // MOVIMIENTO DIRECTO (fallback o cuando estÃ¡ cerca)
-            const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
-            this.angle = angleToTarget;
-            this.vx = Math.cos(this.angle) * this.speed;
-            this.vy = Math.sin(this.angle) * this.speed;
 
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-            this.spider.velocity = this.vx;
-            this.spider.velocityY = this.vy;
-
+            // NO MÃS VUELO - Solo constrain a superficie
+            this.movement.constrainToSurface(this.spider);
             return true;
         }
 
