@@ -446,5 +446,81 @@ class NavMesh {
             }
         }
     }
-}
+
+    /**
+     * AÃ±adir sitio de construcciÃ³n temporal para WebOrder pending
+     */
+    addTemporaryConstructionSite(order) {
+        if (!order.id) {
+            order.id = "order_${Date.now()}_${Math.random()}";
+        }
+
+        const tempNodes = [];
+
+        // Crear nodos temporales en nearPoint y farPoint
+        for (const point of [order.startPoint, order.endPoint]) {
+            const x = Math.round(point.x / this.nodeSpacing) * this.nodeSpacing;
+            const y = Math.round(point.y / this.nodeSpacing) * this.nodeSpacing;
+
+            let node = this.nodeGrid[`${x},`${y}`];
+            if (!node) {
+                node = new NavNode(x, y);
+                this.nodes.push(node);
+                this.nodeGrid[`${x},`${y}`] = node;
+            }
+
+            if (!node.walkable) {
+                node.walkable = true;
+                this.walkableNodes.push(node);
+            }
+            node.surface = 'construction';
+            node.surfaceRef = order;
+            tempNodes.push(node);
+        }
+
+        // Guardar referencia para limpieza posterior
+        if (!this.constructionSites) {
+            this.constructionSites = new Map();
+        }
+        this.constructionSites.set(order.id, tempNodes);
+
+        // Conectar nodos temporales
+        this.rebuildConnectionsForNodes(tempNodes);
+
+        console.log(`ðŸš§ Sitio de construcciÃ³n temporal aÃ±adido para orden `${order.id}`);
+    }
+
+    /**
+     * Remover sitio de construcciÃ³n temporal cuando web se completa
+     */
+    removeTemporaryConstructionSite(order) {
+        if (!this.constructionSites || !order.id) return;
+
+        const tempNodes = this.constructionSites.get(order.id);
+        if (tempNodes) {
+            for (const node of tempNodes) {
+                if (node.surface === 'construction' && node.surfaceRef === order) {
+                    const onOtherSurface = this.isOnTrunk(node.x, node.y) || 
+                                          this.findBranchAt(node.x, node.y) ||
+                                          (this.nest && this.isInNest(node.x, node.y));
+                    
+                    if (!onOtherSurface) {
+                        node.walkable = false;
+                        const index = this.walkableNodes.indexOf(node);
+                        if (index > -1) {
+                            this.walkableNodes.splice(index, 1);
+                        }
+                    }
+                    
+                    node.surface = null;
+                    node.surfaceRef = null;
+                    node.neighbors = [];
+                }
+            }
+
+            this.constructionSites.delete(order.id);
+            console.log(`âœ… Sitio de construcciÃ³n temporal removido para orden `${order.id}`);
+        }
+    }}
+
 

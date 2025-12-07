@@ -1,9 +1,9 @@
-/**
- * Web - Sistema de telas de araña
- * Gestiona órdenes de construcción, webs construidas e input del jugador
+﻿/**
+ * Web - Sistema de telas de araÃ±a
+ * Gestiona Ã³rdenes de construcciÃ³n, webs construidas e input del jugador
  */
 
-// Clase para representar una orden de construcción de tela de araña
+// Clase para representar una orden de construcciÃ³n de tela de araÃ±a
 class WebOrder {
     constructor(startPoint, endPoint) {
         this.startPoint = startPoint; // {x, y, surface}
@@ -22,11 +22,11 @@ class WebOrder {
         this.assignedSpiders = [];
         this.buildReversed = false; // true si se construye desde endPoint hacia startPoint
 
-        // Web física parcial que se construye progresivamente
+        // Web fÃ­sica parcial que se construye progresivamente
         this.partialWeb = null;
     }
 
-    // Establecer dirección de construcción según posición de Worker
+    // Establecer direcciÃ³n de construcciÃ³n segÃºn posiciÃ³n de Worker
     setBuildDirection(spiderX, spiderY) {
         const distToStart = Math.hypot(spiderX - this.startPoint.x, spiderY - this.startPoint.y);
         const distToEnd = Math.hypot(spiderX - this.endPoint.x, spiderY - this.endPoint.y);
@@ -36,7 +36,7 @@ class WebOrder {
     addSilk(amount) {
         this.silkProgress += amount;
 
-        // Actualizar web física parcial basada en progreso
+        // Actualizar web fÃ­sica parcial basada en progreso
         if (this.nearPoint && this.farPoint) {
             const progress = Math.min(1, this.silkProgress / this.silkRequired);
             const dx = this.farPoint.x - this.nearPoint.x;
@@ -59,21 +59,21 @@ class WebOrder {
     }
 
     draw(ctx) {
-        // Dibujar orden como línea discontinua orgánica
+        // Dibujar orden como lÃ­nea discontinua orgÃ¡nica
         ctx.save();
 
-        // Color según tipo: AMARILLO para NEST, gris para REGULAR
+        // Color segÃºn tipo: AMARILLO para NEST, gris para REGULAR
         ctx.strokeStyle = this.webType === 'NEST'
             ? 'rgba(255, 215, 0, 0.6)'  // Amarillo/dorado para WebNido
             : 'rgba(192, 192, 192, 0.5)'; // Gris para web normal
         ctx.setLineDash([10, 5]);
         ctx.lineWidth = 0.7; // 1/3 del grosor original
 
-        // Curva orgánica con ligera caída
+        // Curva orgÃ¡nica con ligera caÃ­da
         const dx = this.endPoint.x - this.startPoint.x;
         const dy = this.endPoint.y - this.startPoint.y;
         const length = Math.hypot(dx, dy);
-        const sag = length * 0.08; // 8% de caída
+        const sag = length * 0.08; // 8% de caÃ­da
 
         const midX = (this.startPoint.x + this.endPoint.x) / 2;
         const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
@@ -89,7 +89,7 @@ class WebOrder {
             ctx.strokeStyle = 'rgba(192, 192, 192, 0.8)';
             ctx.setLineDash([]);
 
-            // Determinar puntos según dirección de construcción
+            // Determinar puntos segÃºn direcciÃ³n de construcciÃ³n
             const buildStart = this.buildReversed ? this.endPoint : this.startPoint;
             const buildEnd = this.buildReversed ? this.startPoint : this.endPoint;
             const buildDx = buildEnd.x - buildStart.x;
@@ -113,14 +113,14 @@ class WebOrder {
     }
 }
 
-// Clase para representar una tela de araña construida
+// Clase para representar una tela de araÃ±a construida
 class Web {
     constructor(startPoint, endPoint) {
         this.startPoint = { x: startPoint.x, y: startPoint.y };
         this.endPoint = { x: endPoint.x, y: endPoint.y };
         this.thickness = 0.7; // 1/3 del grosor original (era 2)
         this.strength = 100;
-        this.vibration = 0; // Vibración causada por presas atrapadas
+        this.vibration = 0; // VibraciÃ³n causada por presas atrapadas
     }
 
     draw(ctx) {
@@ -129,16 +129,16 @@ class Web {
         ctx.setLineDash([]);
         ctx.lineWidth = this.thickness;
 
-        // Curva orgánica con ligera caída por gravedad
+        // Curva orgÃ¡nica con ligera caÃ­da por gravedad
         const dx = this.endPoint.x - this.startPoint.x;
         const dy = this.endPoint.y - this.startPoint.y;
         const length = Math.hypot(dx, dy);
-        const sag = length * 0.08; // 8% de caída
+        const sag = length * 0.08; // 8% de caÃ­da
 
         const midX = (this.startPoint.x + this.endPoint.x) / 2;
         const midY = (this.startPoint.y + this.endPoint.y) / 2 + sag;
 
-        // Aplicar vibración si existe
+        // Aplicar vibraciÃ³n si existe
         const vibrationOffset = this.vibration;
 
         ctx.beginPath();
@@ -149,13 +149,13 @@ class Web {
         ctx.restore();
     }
 
-    // Comprobar si un punto está cerca de esta web
+    // Comprobar si un punto estÃ¡ cerca de esta web
     isNear(x, y, threshold = 10) {
         const dist = this.distanceToPoint(x, y);
         return dist < threshold;
     }
 
-    // Calcular distancia de un punto a esta línea
+    // Calcular distancia de un punto a esta lÃ­nea
     distanceToPoint(x, y) {
         const dx = this.endPoint.x - this.startPoint.x;
         const dy = this.endPoint.y - this.startPoint.y;
@@ -173,7 +173,7 @@ class Web {
         return Math.hypot(x - projX, y - projY);
     }
 
-    // Obtener punto más cercano en esta web
+    // Obtener punto mÃ¡s cercano en esta web
     getClosestPoint(x, y) {
         const dx = this.endPoint.x - this.startPoint.x;
         const dy = this.endPoint.y - this.startPoint.y;
@@ -199,7 +199,7 @@ class WebNido extends Web {
         this.type = 'NEST_WEB';
         this.storedMosquitos = [];
         this.capacity = 5;
-        this.thickness = 1.5; // Más gruesa que web normal
+        this.thickness = 1.5; // MÃ¡s gruesa que web normal
     }
 
     addMosquito(mosquito) {
@@ -249,15 +249,15 @@ class WebNido extends Web {
     }
 }
 
-// Clase para gestionar todas las órdenes y webs
+// Clase para gestionar todas las Ã³rdenes y webs
 class WebManager {
     constructor(tree, nest, spiders = []) {
         this.tree = tree;
         this.nest = nest;
-        this.spiders = spiders; // Array de arañas disponibles
+        this.spiders = spiders; // Array de araÃ±as disponibles
         this.orders = [];
         this.webs = [];
-        this.navMesh = null; // Se establecerá después
+        this.navMesh = null; // Se establecerÃ¡ despuÃ©s
     }
 
     setNavMesh(navMesh) {
@@ -267,16 +267,16 @@ class WebManager {
     createOrder(startPoint, endPoint, webType = 'REGULAR') {
         const order = new WebOrder(startPoint, endPoint);
         order.webType = webType;
-        this.orders.push(order);
+        this.orders.push(order);`r`n`r`n        // AÃ±adir construcciÃ³n temporal al NavMesh`r`n        if (this.navMesh) {`r`n            this.navMesh.addTemporaryConstructionSite(order);`r`n        }
 
-        // Intentar asignar araña inmediatamente
+        // Intentar asignar araÃ±a inmediatamente
         this.assignSpiderToOrder(order);
 
         return order;
     }
 
     assignSpiderToOrder(order) {
-        // Buscar araña disponible (solo Workers pueden construir)
+        // Buscar araÃ±a disponible (solo Workers pueden construir)
         let nearestSpider = null;
         let minDist = Infinity;
 
@@ -295,9 +295,9 @@ class WebManager {
             }
         }
 
-        // Asignar la araña más cercana
+        // Asignar la araÃ±a mÃ¡s cercana
         if (nearestSpider) {
-            // Establecer dirección de construcción según posición de Worker
+            // Establecer direcciÃ³n de construcciÃ³n segÃºn posiciÃ³n de Worker
             order.setBuildDirection(nearestSpider.x, nearestSpider.y);
 
             nearestSpider.currentTask = order;
@@ -314,13 +314,13 @@ class WebManager {
     }
 
     completeOrder(order) {
-        // Crear WebNido o Web según tipo
+        // Crear WebNido o Web segÃºn tipo
         const web = (order.webType === 'NEST')
             ? new WebNido(order.startPoint, order.endPoint)
             : new Web(order.startPoint, order.endPoint);
         this.webs.push(web);
 
-        // Añadir web a NavMesh si está disponible
+        // AÃ±adir web a NavMesh si estÃ¡ disponible
         if (this.navMesh) {
             this.navMesh.addWebToMesh(web);
         }
@@ -334,9 +334,9 @@ class WebManager {
         return web;
     }
 
-    // Encontrar web en un punto dado (para detección de superficie transitable)
+    // Encontrar web en un punto dado (para detecciÃ³n de superficie transitable)
     findWebAt(x, y) {
-        // 1. Comprobar webs parciales de órdenes en progreso
+        // 1. Comprobar webs parciales de Ã³rdenes en progreso
         for (const order of this.orders) {
             if (order.partialWeb && order.partialWeb.isNear(x, y, 10)) {
                 return order.partialWeb;
@@ -353,11 +353,11 @@ class WebManager {
     }
 
     findSurfaceAt(x, y) {
-        const threshold = 15; // Radio de detección
+        const threshold = 15; // Radio de detecciÃ³n
 
-        // 1. Comprobar ÓRDENES PENDIENTES (WebOrder)
+        // 1. Comprobar Ã“RDENES PENDIENTES (WebOrder)
         for (const order of this.orders) {
-            // Verificar si el click está cerca de la línea de la orden
+            // Verificar si el click estÃ¡ cerca de la lÃ­nea de la orden
             const dist = this.distanceToLine(x, y, order.startPoint, order.endPoint);
             if (dist < threshold) {
                 return { type: 'order', order, point: { x, y } }; // Punto exacto
@@ -378,7 +378,7 @@ class WebManager {
             }
         }
 
-        // 4. Comprobar NIDO (área clickeable para WebNidos)
+        // 4. Comprobar NIDO (Ã¡rea clickeable para WebNidos)
         if (this.nest.isPointInside(x, y, 1.0)) {
             return { type: 'nest', nest: this.nest, point: { x, y } };
         }
@@ -390,10 +390,10 @@ class WebManager {
             return { type: 'trunk', point: { x, y } }; // Punto exacto en el borde
         }
 
-        return null; // No hay superficie válida
+        return null; // No hay superficie vÃ¡lida
     }
 
-    // Nueva función helper para calcular distancia a una línea
+    // Nueva funciÃ³n helper para calcular distancia a una lÃ­nea
     distanceToLine(x, y, start, end) {
         const dx = end.x - start.x;
         const dy = end.y - start.y;
@@ -422,14 +422,14 @@ class WebManager {
 
 
     update() {
-        // Intentar asignar arañas a órdenes pendientes sin asignar
+        // Intentar asignar araÃ±as a Ã³rdenes pendientes sin asignar
         for (const order of this.orders) {
             if (order.status === 'pending' && order.assignedSpiders.length === 0) {
                 this.assignSpiderToOrder(order);
             }
         }
 
-        // Comprobar órdenes completadas
+        // Comprobar Ã³rdenes completadas
         for (let i = this.orders.length - 1; i >= 0; i--) {
             const order = this.orders[i];
             if (order.status === 'complete') {
@@ -444,7 +444,7 @@ class WebManager {
             web.draw(ctx);
         }
 
-        // Dibujar órdenes pendientes
+        // Dibujar Ã³rdenes pendientes
         for (const order of this.orders) {
             order.draw(ctx);
         }
@@ -503,22 +503,22 @@ class InputHandler {
             const endSurface = this.webManager.findSurfaceAt(pos.x, pos.y);
 
             if (endSurface && this.dragStart) {
-                // Detectar si AMBOS puntos están en área del nido
-                const margin = 1.1; // 10% más grande para evitar missclick
+                // Detectar si AMBOS puntos estÃ¡n en Ã¡rea del nido
+                const margin = 1.1; // 10% mÃ¡s grande para evitar missclick
 
-                // Usar método del nest para verificar puntos
+                // Usar mÃ©todo del nest para verificar puntos
                 const startInNest = this.webManager.nest.isPointInside(this.dragStart.x, this.dragStart.y, margin);
                 const endInNest = this.webManager.nest.isPointInside(pos.x, pos.y, margin);
 
-                // WebNido solo si AMBOS puntos están en el nido
+                // WebNido solo si AMBOS puntos estÃ¡n en el nido
                 const webType = (startInNest && endInNest) ? 'NEST' : 'REGULAR';
 
-                console.log(`🕸️ WebType: ${webType}`);
-                console.log(`  Start: (${this.dragStart.x.toFixed(1)}, ${this.dragStart.y.toFixed(1)}) → inNest: ${startInNest}`);
-                console.log(`  End: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}) → inNest: ${endInNest}`);
-                console.log(`  🏠 Nest: center(${this.webManager.nest.x.toFixed(1)}, ${this.webManager.nest.y.toFixed(1)}) size:${this.webManager.nest.width.toFixed(0)}x${this.webManager.nest.height.toFixed(0)}`);
+                console.log(`ðŸ•¸ï¸ WebType: ${webType}`);
+                console.log(`  Start: (${this.dragStart.x.toFixed(1)}, ${this.dragStart.y.toFixed(1)}) â†’ inNest: ${startInNest}`);
+                console.log(`  End: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}) â†’ inNest: ${endInNest}`);
+                console.log(`  ðŸ  Nest: center(${this.webManager.nest.x.toFixed(1)}, ${this.webManager.nest.y.toFixed(1)}) size:${this.webManager.nest.width.toFixed(0)}x${this.webManager.nest.height.toFixed(0)}`);
 
-                // Crear orden de construcción
+                // Crear orden de construcciÃ³n
                 this.webManager.createOrder(this.dragStart, endSurface.point, webType);
             }
 
@@ -530,7 +530,7 @@ class InputHandler {
     }
 
     draw(ctx) {
-        // Dibujar preview durante el drag con estética orgánica
+        // Dibujar preview durante el drag con estÃ©tica orgÃ¡nica
         if (this.isDragging && this.dragStart && this.dragCurrent) {
             ctx.save();
 
@@ -540,14 +540,14 @@ class InputHandler {
             const currentInNest = this.webManager.nest.isPointInside(this.dragCurrent.x, this.dragCurrent.y, margin);
             const isNestWeb = startInNest && currentInNest;
 
-            // Color según si es WebNido o web normal
+            // Color segÃºn si es WebNido o web normal
             ctx.strokeStyle = isNestWeb
                 ? 'rgba(255, 215, 0, 0.5)'    // Amarillo para WebNido
                 : 'rgba(192, 192, 192, 0.3)'; // Gris para web normal
             ctx.setLineDash([5, 5]);
             ctx.lineWidth = 0.7; // Mismo grosor que las webs
 
-            // Curva orgánica para preview
+            // Curva orgÃ¡nica para preview
             const dx = this.dragCurrent.x - this.dragStart.x;
             const dy = this.dragCurrent.y - this.dragStart.y;
             const length = Math.hypot(dx, dy);
@@ -565,3 +565,4 @@ class InputHandler {
         }
     }
 }
+
