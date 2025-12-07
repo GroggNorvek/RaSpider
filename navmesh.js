@@ -32,8 +32,9 @@ class NavNode {
 }
 
 class NavMesh {
-    constructor(tree, canvasWidth, canvasHeight, nodeSpacing = 15) {
+    constructor(tree, canvasWidth, canvasHeight, nodeSpacing = 15, nest = null) {
         this.tree = tree;
+        this.nest = nest; // Añadido: referencia al nido
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.nodeSpacing = nodeSpacing; // Alta densidad: 15px para movimiento exquisito
@@ -87,6 +88,15 @@ class NavMesh {
      */
     sampleSurfaces() {
         for (const node of this.nodes) {
+            // Comprobar nest (PRIMERO - tiene prioridad)
+            if (this.nest && this.isInNest(node.x, node.y)) {
+                node.walkable = true;
+                node.surface = 'nest';
+                node.surfaceRef = this.nest;
+                this.walkableNodes.push(node);
+                continue;
+            }
+
             // Comprobar tronco
             if (this.isOnTrunk(node.x, node.y)) {
                 node.walkable = true;
@@ -397,6 +407,18 @@ class NavMesh {
         const distance = Math.hypot(x - closestX, y - closestY);
 
         return distance < branch.thickness / 2 + 5;
+    }
+
+    isInNest(x, y) {
+        if (!this.nest) return false;
+
+        // El nest es un círculo centrado en el tronco
+        const nestCenterX = this.nest.center.x;
+        const nestCenterY = this.nest.center.y;
+        const nestRadius = this.nest.size;
+
+        const dist = Math.hypot(x - nestCenterX, y - nestCenterY);
+        return dist <= nestRadius;
     }
 
     /**
