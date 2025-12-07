@@ -487,7 +487,7 @@ class NavMesh {
         // Conectar nodos temporales
         this.rebuildConnectionsForNodes(tempNodes);
 
-        console.log(ðŸš§ Sitio de construcciÃ³n temporal aÃ±adido para orden ${ order.id });
+        console.log(`Sitio de construcción temporal añadido para orden ${order.id}`);
     }
 
     /**
@@ -519,7 +519,7 @@ class NavMesh {
             }
 
             this.constructionSites.delete(order.id);
-            console.log(âœ… Sitio de construcciÃ³n temporal removido para orden ${ order.id });
+            console.log(`Sitio de construcción temporal removido para orden ${order.id}`);
         }
     }
 }
