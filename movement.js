@@ -252,6 +252,12 @@ class SpiderController {
                 }
             }
 
+            // Si llegÃ³ cerca del nearPoint, limpiar path para permitir construcciÃ³n
+            if (distToNear <= 30) {
+                this.constructionPath = null;
+                this.constructionPathIndex = 0;
+            }
+
 
             // NO MÃS VUELO - Solo constrain a superficie
             this.movement.constrainToSurface(this.spider);
