@@ -163,6 +163,10 @@ class SpiderController {
         this.targetNode = null;
         this.retargetTimer = 0;
         this.retargetInterval = 180; // Cambiar objetivo cada 3 segundos (60fps)
+
+        // Pathfinding para construcción de webs
+        this.constructionPath = null;
+        this.constructionPathIndex = 0;
     }
 
     handleWebConstruction() {
@@ -173,6 +177,8 @@ class SpiderController {
         // Si la tarea ya está completa, liberar la araña
         if (task.status === 'complete') {
             this.spider.currentTask = null;
+            this.constructionPath = null;
+            this.constructionPathIndex = 0;
             return false;
         }
 
@@ -191,20 +197,63 @@ class SpiderController {
         const targetY = nearPoint.y + dy * progress;
         const dist = Math.hypot(this.spider.x - targetX, this.spider.y - targetY);
 
-        // Si está lejos del punto de progreso, moverse hacia allí
+        // Si está lejos del punto de progreso, moverse hacia allí USANDO NAVMESH
         if (dist > 20) {
-            const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
-            this.angle = angleToTarget;
-            this.vx = Math.cos(this.angle) * this.speed;
-            this.vy = Math.sin(this.angle) * this.speed;
+            // Si tenemos NavMesh, usar pathfinding; si no, movimiento directo como fallback
+            if (this.movement.navMesh) {
+                // Si no tenemos path o el objetivo cambió significativamente, recalcular
+                if (!this.constructionPath || this.constructionPath.length === 0) {
+                    const currentNode = this.movement.navMesh.findNearestNode(this.spider.x, this.spider.y);
+                    const targetNode = this.movement.navMesh.findNearestNode(targetX, targetY);
 
-            this.spider.x += this.vx;
-            this.spider.y += this.vy;
-            this.spider.velocity = this.vx;
-            this.spider.velocityY = this.vy;
+                    if (currentNode && targetNode) {
+                        this.constructionPath = this.movement.navMesh.findPath(currentNode, targetNode);
+                        this.constructionPathIndex = 0;
+                    }
+                }
 
-            // NO constrain durante construcción - movimiento libre
-            return true; // Está trabajando en la tarea
+                // Seguir el path si existe
+                if (this.constructionPath && this.constructionPath.length > 0 && this.constructionPathIndex < this.constructionPath.length) {
+                    const pathTargetNode = this.constructionPath[this.constructionPathIndex];
+                    const pathDx = pathTargetNode.x - this.spider.x;
+                    const pathDy = pathTargetNode.y - this.spider.y;
+                    const pathDist = Math.hypot(pathDx, pathDy);
+
+                    // Si llegamos al nodo actual del path, avanzar al siguiente
+                    if (pathDist < 5) {
+                        this.constructionPathIndex++;
+                    } else {
+                        // Moverse hacia el nodo del path
+                        this.angle = Math.atan2(pathDy, pathDx);
+                        this.vx = Math.cos(this.angle) * this.speed;
+                        this.vy = Math.sin(this.angle) * this.speed;
+
+                        this.spider.x += this.vx;
+                        this.spider.y += this.vy;
+                        this.spider.velocity = this.vx;
+                        this.spider.velocityY = this.vy;
+                    }
+
+                    return true; // Está trabajando en la tarea
+                } else {
+                    // No hay path válido - recalcular en siguiente frame
+                    this.constructionPath = null;
+                    return true;
+                }
+            } else {
+                // Fallback: movimiento directo si no hay NavMesh
+                const angleToTarget = Math.atan2(targetY - this.spider.y, targetX - this.spider.x);
+                this.angle = angleToTarget;
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+
+                this.spider.x += this.vx;
+                this.spider.y += this.vy;
+                this.spider.velocity = this.vx;
+                this.spider.velocityY = this.vy;
+
+                return true;
+            }
         }
 
         // Está en posición sobre la web, aportar silk
@@ -216,6 +265,8 @@ class SpiderController {
 
             if (completed) {
                 this.spider.currentTask = null;
+                this.constructionPath = null;
+                this.constructionPathIndex = 0;
                 return false;
             }
         } else {
@@ -226,6 +277,8 @@ class SpiderController {
                 task.assignedSpiders = [];
             }
             this.spider.currentTask = null;
+            this.constructionPath = null;
+            this.constructionPathIndex = 0;
             return false;
         }
 
