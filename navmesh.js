@@ -221,7 +221,7 @@ class NavMesh {
         // Reconectar: conectar nuevos nodos entre sÃ­ y con vecinos existentes
         this.rebuildConnectionsForNodes(newNodes);
 
-        console.log(ðŸ•¸ï¸ Web aÃ±adida a NavMesh: ${ newNodes.length } nodos nuevos);
+        console.log(`Web aÃ±adida a NavMesh: ${newNodes.length} nodos nuevos`);
     }
 
     /**
