@@ -256,12 +256,13 @@ class SpiderController {
             if (distToNear <= 30) {
                 this.constructionPath = null;
                 this.constructionPathIndex = 0;
+                // NO hacer return - dejar que caiga a la secciÃ³n de construcciÃ³n
+            } else {
+                // Solo hacer constrain+return si todavÃ­a estÃ¡ lejos
+                // NO MÃS VUELO - Solo constrain a superficie
+                this.movement.constrainToSurface(this.spider);
+                return true;
             }
-
-
-            // NO MÃS VUELO - Solo constrain a superficie
-            this.movement.constrainToSurface(this.spider);
-            return true;
         }
 
         // EstÃ¡ en posiciÃ³n sobre la web, aportar silk
