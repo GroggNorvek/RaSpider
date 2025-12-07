@@ -138,7 +138,7 @@ class NavMesh {
             for (const dir of directions) {
                 const nx = node.x + dir.dx * this.nodeSpacing;
                 const ny = node.y + dir.dy * this.nodeSpacing;
-                const neighbor = this.nodeGrid[${ nx }, ${ ny }];
+                const neighbor = this.nodeGrid[`${nx},${ny}`];
 
                 if (neighbor && neighbor.walkable) {
                     // Conectar si estÃ¡n en la misma superficie O en superficies que se tocan
@@ -201,11 +201,11 @@ class NavMesh {
             const y = Math.round((web.startPoint.y + dy * t) / this.nodeSpacing) * this.nodeSpacing;
 
             // Si el nodo ya existe, actualizar; si no, crear
-            let node = this.nodeGrid[${ x }, ${ y }];
+            let node = this.nodeGrid[`${x},${y}`];
             if (!node) {
                 node = new NavNode(x, y);
                 this.nodes.push(node);
-                this.nodeGrid[${ x },${ y }] = node;
+                this.nodeGrid[`${x},${y}`] = node;
             }
 
             // Marcar como web
@@ -240,7 +240,7 @@ class NavMesh {
             for (const dir of directions) {
                 const nx = node.x + dir.dx * this.nodeSpacing;
                 const ny = node.y + dir.dy * this.nodeSpacing;
-                const neighbor = this.nodeGrid[${ nx }, ${ ny }];
+                const neighbor = this.nodeGrid[`${nx},${ny}`];
 
                 if (neighbor && neighbor.walkable && this.canConnect(node, neighbor)) {
                     const distance = Math.hypot(nx - node.x, ny - node.y);
@@ -254,7 +254,7 @@ class NavMesh {
             for (const dir of directions) {
                 const nx = node.x + dir.dx * this.nodeSpacing;
                 const ny = node.y + dir.dy * this.nodeSpacing;
-                const neighbor = this.nodeGrid[${ nx }, ${ ny }];
+                const neighbor = this.nodeGrid[`${nx},${ny}`];
 
                 if (neighbor && neighbor.walkable && this.canConnect(neighbor, node)) {
                     // AÃ±adir conexiÃ³n si no existe
@@ -462,11 +462,11 @@ class NavMesh {
             const x = Math.round(point.x / this.nodeSpacing) * this.nodeSpacing;
             const y = Math.round(point.y / this.nodeSpacing) * this.nodeSpacing;
 
-            let node = this.nodeGrid[${ x }, ${ y }];
+            let node = this.nodeGrid[`${x},${y}`];
             if (!node) {
                 node = new NavNode(x, y);
                 this.nodes.push(node);
-                this.nodeGrid[${ x },${ y }] = node;
+                this.nodeGrid[`${x},${y}`] = node;
             }
 
             if (!node.walkable) {
