@@ -210,9 +210,10 @@ class SpiderController {
                 // Si no tenemos path o el objetivo cambiÃ³, recalcular
                 if (!this.constructionPath || this.constructionPath.length === 0) {
                     const currentNode = this.movement.navMesh.findNearestNode(this.spider.x, this.spider.y);
-                    const nearNode = this.movement.navMesh.findNearestNode(nearPoint.x, nearPoint.y);
+                    // IMPORTANTE: pathfind hacia el punto de PROGRESO, no hacia nearPoint
+                    const targetNode = this.movement.navMesh.findNearestNode(targetX, targetY);
 
-                    if (currentNode && nearNode) {
+                    if (currentNode && targetNode) {
                         this.constructionPath = this.movement.navMesh.findPath(currentNode, nearNode);
                         this.constructionPathIndex = 0;
                     } else {
