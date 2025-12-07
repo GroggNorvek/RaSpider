@@ -1,6 +1,6 @@
-/**
+﻿/**
  * NavMesh - Navigation Mesh System
- * Malla invisible de alta densidad para navegación realista de arañas
+ * Malla invisible de alta densidad para navegaciÃ³n realista de araÃ±as
  */
 
 class NavNode {
@@ -14,7 +14,7 @@ class NavNode {
 
         // Para A* pathfinding
         this.g = 0; // Distancia desde inicio
-        this.h = 0; // Heurística (distancia estimada a objetivo)
+        this.h = 0; // HeurÃ­stica (distancia estimada a objetivo)
         this.f = 0; // g + h
         this.parent = null;
     }
@@ -34,16 +34,16 @@ class NavNode {
 class NavMesh {
     constructor(tree, canvasWidth, canvasHeight, nodeSpacing = 15, nest = null) {
         this.tree = tree;
-        this.nest = nest; // Añadido: referencia al nido
+        this.nest = nest; // AÃ±adido: referencia al nido
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.nodeSpacing = nodeSpacing; // Alta densidad: 15px para movimiento exquisito
 
         this.nodes = []; // Todos los nodos de la malla
         this.walkableNodes = []; // Solo nodos caminables
-        this.nodeGrid = {}; // Mapeo rápido por coordenadas "x,y" -> node
+        this.nodeGrid = {}; // Mapeo rÃ¡pido por coordenadas "x,y" -> node
 
-        this.webManager = null; // Se establecerá después
+        this.webManager = null; // Se establecerÃ¡ despuÃ©s
     }
 
     setWebManager(webManager) {
@@ -54,7 +54,7 @@ class NavMesh {
      * Construir malla completa - samplear todas las superficies
      */
     buildMesh() {
-        console.log('🕸️ Construyendo NavMesh de alta densidad...');
+        console.log('ðŸ•¸ï¸ Construyendo NavMesh de alta densidad...');
         const startTime = performance.now();
 
         // 1. Crear grid de nodos
@@ -67,7 +67,7 @@ class NavMesh {
         this.buildConnections();
 
         const endTime = performance.now();
-        console.log(`✅ NavMesh construida: ${this.walkableNodes.length} nodos walkable de ${this.nodes.length} totales en ${(endTime - startTime).toFixed(2)}ms`);
+        console.log(`âœ… NavMesh construida: ${this.walkableNodes.length} nodos walkable de ${this.nodes.length} totales en ${(endTime - startTime).toFixed(2)}ms`);
     }
 
     /**
@@ -115,12 +115,12 @@ class NavMesh {
                 continue;
             }
 
-            // Webs se añadirán dinámicamente
+            // Webs se aÃ±adirÃ¡n dinÃ¡micamente
         }
     }
 
     /**
-     * Conectar nodos adyacentes que están en superficies compatibles
+     * Conectar nodos adyacentes que estÃ¡n en superficies compatibles
      */
     buildConnections() {
         const directions = [
@@ -141,7 +141,7 @@ class NavMesh {
                 const neighbor = this.nodeGrid[`${nx},${ny}`];
 
                 if (neighbor && neighbor.walkable) {
-                    // Conectar si están en la misma superficie O en superficies que se tocan
+                    // Conectar si estÃ¡n en la misma superficie O en superficies que se tocan
                     if (this.canConnect(node, neighbor)) {
                         const distance = Math.hypot(nx - node.x, ny - node.y);
                         node.addNeighbor(neighbor, distance);
@@ -168,14 +168,14 @@ class NavMesh {
             return true;
         }
 
-        // Superficies diferentes: conectar si están realmente "tocándose"
+        // Superficies diferentes: conectar si estÃ¡n realmente "tocÃ¡ndose"
         // Trunk-Branch: conectar si la rama sale del tronco
         if ((node1.surface === 'trunk' && node2.surface === 'branch') ||
             (node1.surface === 'branch' && node2.surface === 'trunk')) {
             return Math.hypot(node1.x - node2.x, node1.y - node2.y) < this.nodeSpacing * 1.5;
         }
 
-        // Trunk-Web o Branch-Web: conectar si están muy cerca
+        // Trunk-Web o Branch-Web: conectar si estÃ¡n muy cerca
         if (node1.surface === 'web' || node2.surface === 'web') {
             return Math.hypot(node1.x - node2.x, node1.y - node2.y) < this.nodeSpacing * 1.5;
         }
@@ -184,12 +184,12 @@ class NavMesh {
     }
 
     /**
-     * Añadir web a la malla dinámicamente
+     * AÃ±adir web a la malla dinÃ¡micamente
      */
     addWebToMesh(web) {
         const newNodes = [];
 
-        // Samplear la línea de la web
+        // Samplear la lÃ­nea de la web
         const dx = web.endPoint.x - web.startPoint.x;
         const dy = web.endPoint.y - web.startPoint.y;
         const length = Math.hypot(dx, dy);
@@ -218,10 +218,10 @@ class NavMesh {
             newNodes.push(node);
         }
 
-        // Reconectar: conectar nuevos nodos entre sí y con vecinos existentes
+        // Reconectar: conectar nuevos nodos entre sÃ­ y con vecinos existentes
         this.rebuildConnectionsForNodes(newNodes);
 
-        console.log(`🕸️ Web añadida a NavMesh: ${newNodes.length} nodos nuevos`);
+        console.log(`ðŸ•¸ï¸ Web aÃ±adida a NavMesh: ${newNodes.length} nodos nuevos`);
     }
 
     /**
@@ -249,7 +249,7 @@ class NavMesh {
             }
         }
 
-        // También actualizar vecinos de nodos adyacentes
+        // TambiÃ©n actualizar vecinos de nodos adyacentes
         for (const node of nodesToUpdate) {
             for (const dir of directions) {
                 const nx = node.x + dir.dx * this.nodeSpacing;
@@ -257,7 +257,7 @@ class NavMesh {
                 const neighbor = this.nodeGrid[`${nx},${ny}`];
 
                 if (neighbor && neighbor.walkable && this.canConnect(neighbor, node)) {
-                    // Añadir conexión si no existe
+                    // AÃ±adir conexiÃ³n si no existe
                     const exists = neighbor.neighbors.some(n => n.node === node);
                     if (!exists) {
                         const distance = Math.hypot(nx - node.x, ny - node.y);
@@ -269,7 +269,7 @@ class NavMesh {
     }
 
     /**
-     * Encontrar nodo más cercano a una posición
+     * Encontrar nodo mÃ¡s cercano a una posiciÃ³n
      */
     findNearestNode(x, y, walkableOnly = true) {
         let nearest = null;
@@ -371,7 +371,7 @@ class NavMesh {
     }
 
     /**
-     * Helpers de detección de superficie (copiados de MovementSystem)
+     * Helpers de detecciÃ³n de superficie (copiados de MovementSystem)
      */
     isOnTrunk(x, y) {
         const trunkLeft = this.tree.x;
@@ -412,9 +412,9 @@ class NavMesh {
     isInNest(x, y) {
         if (!this.nest) return false;
 
-        // El nest es un círculo centrado en el tronco
-        const nestCenterX = this.nest.center.x;
-        const nestCenterY = this.nest.center.y;
+        // El nest es un cÃ­rculo centrado en el tronco
+        const nestCenterX = this.nest.x;
+        const nestCenterY = this.nest.y;
         const nestRadius = this.nest.size;
 
         const dist = Math.hypot(x - nestCenterX, y - nestCenterY);
@@ -422,7 +422,7 @@ class NavMesh {
     }
 
     /**
-     * Visualización para debugging
+     * VisualizaciÃ³n para debugging
      */
     draw(ctx, debug = false) {
         if (!debug) return;
@@ -447,3 +447,4 @@ class NavMesh {
         }
     }
 }
+
