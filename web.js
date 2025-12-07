@@ -257,6 +257,11 @@ class WebManager {
         this.spiders = spiders; // Array de arañas disponibles
         this.orders = [];
         this.webs = [];
+        this.navMesh = null; // Se establecerá después
+    }
+
+    setNavMesh(navMesh) {
+        this.navMesh = navMesh;
     }
 
     createOrder(startPoint, endPoint, webType = 'REGULAR') {
@@ -314,6 +319,11 @@ class WebManager {
             ? new WebNido(order.startPoint, order.endPoint)
             : new Web(order.startPoint, order.endPoint);
         this.webs.push(web);
+
+        // Añadir web a NavMesh si está disponible
+        if (this.navMesh) {
+            this.navMesh.addWebToMesh(web);
+        }
 
         // Eliminar orden de la lista
         const index = this.orders.indexOf(order);

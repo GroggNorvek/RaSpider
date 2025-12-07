@@ -161,7 +161,8 @@ class MosquitoManager {
             // Check web collision for flying mosquitos
             if (mosquito.state === 'FLYING') {
                 const web = this.webManager.findWebAt(mosquito.x, mosquito.y);
-                if (web) {
+                // CRITICAL: Only trap in REGULAR webs, NOT WebNidos (storage only)
+                if (web && !(web instanceof WebNido)) {
                     mosquito.trap(web);
                     console.log('🕸️ Mosquito trapped!');
                 }

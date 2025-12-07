@@ -6,10 +6,15 @@ class MovementSystem {
     constructor(tree) {
         this.tree = tree;
         this.webManager = null; // Se establecerá después
+        this.navMesh = null; // Se establecerá después
     }
 
     setWebManager(webManager) {
         this.webManager = webManager;
+    }
+
+    setNavMesh(navMesh) {
+        this.navMesh = navMesh;
     }
 
     isOnTrunk(x, y) {
@@ -151,6 +156,13 @@ class SpiderController {
         this.angle = Math.random() * Math.PI * 2;
         this.vx = Math.cos(this.angle) * this.speed;
         this.vy = Math.sin(this.angle) * this.speed;
+
+        // NavMesh pathfinding
+        this.currentPath = [];
+        this.pathIndex = 0;
+        this.targetNode = null;
+        this.retargetTimer = 0;
+        this.retargetInterval = 180; // Cambiar objetivo cada 3 segundos (60fps)
     }
 
     handleWebConstruction() {
@@ -206,7 +218,7 @@ class SpiderController {
                 this.spider.currentTask = null;
                 return false;
             }
-       } else {
+        } else {
             // Silk = 0: marcar orden como pending para que otra Worker pueda continuar
             if (task.silkProgress < task.silkRequired) {
                 task.status = 'pending';
@@ -227,6 +239,70 @@ class SpiderController {
             return;
         }
 
+        // NavMesh pathfinding si está disponible
+        if (this.movement.navMesh) {
+            this.updateWithNavMesh();
+        } else {
+            // Fallback: movimiento aleatorio antiguo
+            this.updateLegacyMovement();
+        }
+    }
+
+    updateWithNavMesh() {
+        const navMesh = this.movement.navMesh;
+
+        // Incrementar timer de retarget
+        this.retargetTimer++;
+
+        // Necesitamos un nuevo objetivo?
+        if (!this.targetNode || this.currentPath.length === 0 || this.retargetTimer >= this.retargetInterval) {
+            // Elegir un nodo aleatorio como objetivo
+            const randomIndex = Math.floor(Math.random() * navMesh.walkableNodes.length);
+            this.targetNode = navMesh.walkableNodes[randomIndex];
+
+            // Encontrar nodo más cercano a posición actual
+            const currentNode = navMesh.findNearestNode(this.spider.x, this.spider.y);
+
+            if (currentNode && this.targetNode) {
+                // Buscar path
+                this.currentPath = navMesh.findPath(currentNode, this.targetNode);
+                this.pathIndex = 0;
+                this.retargetTimer = 0;
+            }
+        }
+
+        // Seguir el path si existe
+        if (this.currentPath.length > 0 && this.pathIndex < this.currentPath.length) {
+            const targetNode = this.currentPath[this.pathIndex];
+            const dx = targetNode.x - this.spider.x;
+            const dy = targetNode.y - this.spider.y;
+            const dist = Math.hypot(dx, dy);
+
+            // Si llegamos al nodo actual, avanzar al siguiente
+            if (dist < 5) {
+                this.pathIndex++;
+                if (this.pathIndex >= this.currentPath.length) {
+                    // Path completado, elegir nuevo objetivo pronto
+                    this.retargetTimer = this.retargetInterval - 10;
+                }
+            } else {
+                // Moverse hacia el nodo
+                this.angle = Math.atan2(dy, dx);
+                this.vx = Math.cos(this.angle) * this.speed;
+                this.vy = Math.sin(this.angle) * this.speed;
+
+                this.spider.x += this.vx;
+                this.spider.y += this.vy;
+                this.spider.velocity = this.vx;
+                this.spider.velocityY = this.vy;
+            }
+        } else {
+            // No hay path, forzar retarget
+            this.retargetTimer = this.retargetInterval;
+        }
+    }
+
+    updateLegacyMovement() {
         // Movimiento normal si no hay tareas
         const surface = this.movement.getSurfaceAt(this.spider.x, this.spider.y);
 

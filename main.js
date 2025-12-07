@@ -44,8 +44,28 @@ const inputHandler = new InputHandler(canvas, webManager);
 // Crear sistema de mosquitos (presas)
 const mosquitoManager = new MosquitoManager(canvas.width, canvas.height, webManager);
 
+// Crear NavMesh de alta densidad
+console.log('🕸️ Inicializando NavMesh...');
+const navMesh = new NavMesh(tree, canvas.width, canvas.height, 15); // 15px spacing para movimiento exquisito
+navMesh.buildMesh();
+
 // Conectar webManager con movementSystem para detección de webs
 movementSystem.setWebManager(webManager);
+
+// Conectar NavMesh con movementSystem
+movementSystem.setNavMesh(navMesh);
+
+// Conectar NavMesh con webManager para actualizaciones dinámicas
+webManager.setNavMesh(navMesh);
+
+// Debug mode para visualizar NavMesh
+let debugMode = false;
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'd' || e.key === 'D') {
+        debugMode = !debugMode;
+        console.log(`🐛 Debug mode: ${debugMode ? 'ON' : 'OFF'}`);
+    }
+});
 
 /**
  * Loop principal del juego
@@ -57,6 +77,11 @@ function gameLoop() {
 
     // Dibujar árbol
     tree.draw(ctx);
+
+    // Dibujar NavMesh si debug está activado
+    if (debugMode) {
+        navMesh.draw(ctx, true);
+    }
 
     // Dibujar nido (ANTES de las webs para que las webs aparezcan encima)
     nest.draw(ctx);
